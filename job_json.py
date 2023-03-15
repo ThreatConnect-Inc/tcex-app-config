@@ -6,8 +6,8 @@ from collections import OrderedDict
 from functools import cached_property
 from pathlib import Path
 
+from ..pleb.singleton import Singleton  # type: ignore
 from .model.job_json_model import JobJsonModel
-from .singleton import Singleton
 
 # get tcex logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
@@ -52,12 +52,3 @@ class JobJson(metaclass=Singleton):
     def model(self) -> JobJsonModel:
         """Return the Install JSON model."""
         return JobJsonModel(**self.contents)
-
-    # TODO: [low] possibly add auto fix of version and program name and then uncomment this code.
-    # def write(self):
-    #     """Write current data file."""
-    #     data = self.model.json(
-    #         by_alias=True, exclude_defaults=True, exclude_none=True, indent=2, sort_keys=True
-    #     )
-    #     with self.fqfn.open(mode='w') as fh:
-    #         fh.write(f'{data}\n')

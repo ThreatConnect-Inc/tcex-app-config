@@ -36,6 +36,7 @@ disable = [
   "fixme",
   "invalid-name",
   "logging-fstring-interpolation",
+  "relative-beyond-top-level", # disable relative rule due to this project being a submodule
   "too-few-public-methods",
   "too-many-arguments",
   "too-many-branches",

@@ -7,7 +7,7 @@ from collections import OrderedDict
 from pydantic import BaseModel, Field
 from pydantic.types import constr
 
-from .none_model import NoneModel
+from ..pleb.none_model import NoneModel  # type: ignore # pylint: disable=import-error
 
 __all__ = ['LayoutJsonModel']
 

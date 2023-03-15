@@ -18,11 +18,11 @@ except ImportError:  # pragma: no cover
     pass  # sqlite3 is only required for local development
 
 
+from ..pleb.none_model import NoneModel  # type: ignore
 from .install_json import InstallJson
 from .layout_json import LayoutJson
 from .model.install_json_model import OutputVariablesModel, ParamsModel
 from .model.layout_json_model import OutputsModel
-from .model.none_model import NoneModel
 
 # get tcex logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
