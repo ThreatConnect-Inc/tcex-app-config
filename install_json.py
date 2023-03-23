@@ -11,7 +11,7 @@ from .install_json_update import InstallJsonUpdate
 from .install_json_validate import InstallJsonValidate
 from .model.install_json_model import InstallJsonModel, ParamsModel
 
-# get tcex logger
+# get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 

@@ -6,10 +6,10 @@ from collections import OrderedDict
 from functools import cached_property
 from pathlib import Path
 
-from ..pleb.singleton import Singleton  # type: ignore
+from ...pleb.singleton import Singleton
 from .model.job_json_model import JobJsonModel
 
-# get tcex logger
+# get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 

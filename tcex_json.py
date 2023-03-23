@@ -10,7 +10,7 @@ from .install_json import InstallJson
 from .model.tcex_json_model import TcexJsonModel
 from .tcex_json_update import TcexJsonUpdate
 
-# get tcex logger
+# get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 

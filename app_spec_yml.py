@@ -20,7 +20,7 @@ from .install_json import InstallJson
 from .model.app_spec_yml_model import AppSpecYmlModel
 from .tcex_json import TcexJson
 
-# get tcex logger
+# get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 

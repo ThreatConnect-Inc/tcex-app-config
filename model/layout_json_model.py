@@ -7,7 +7,7 @@ from collections import OrderedDict
 from pydantic import BaseModel, Field
 from pydantic.types import constr
 
-from ..pleb.none_model import NoneModel  # type: ignore # pylint: disable=import-error
+from ....pleb.none_model import NoneModel
 
 __all__ = ['LayoutJsonModel']
 
@@ -89,7 +89,7 @@ class LayoutJsonModel(BaseModel):
         return list(self.params.keys())
 
     @property
-    def params(self) -> dict[str, 'ParametersModel']:
+    def params(self) -> dict[str, ParametersModel]:
         """Return layout.json params in a flattened dict with name param as key."""
         # return {p.name: p for i in self.inputs for p in i.parameters}
 

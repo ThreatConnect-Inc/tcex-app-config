@@ -6,11 +6,11 @@ from collections import OrderedDict
 from functools import cached_property
 from pathlib import Path
 
-from ..pleb.singleton import Singleton  # type: ignore
+from ...pleb.singleton import Singleton
 from .model.install_json_model import OutputVariablesModel, ParamsModel
 from .model.layout_json_model import LayoutJsonModel
 
-# get tcex logger
+# get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
