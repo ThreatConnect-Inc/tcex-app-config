@@ -1,4 +1,4 @@
-"""Model definition for tcex.json configuration file"""
+"""TcEx Framework Module"""
 # standard library
 from pathlib import PosixPath
 

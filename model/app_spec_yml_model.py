@@ -1,4 +1,4 @@
-"""Model definition for app_spec.yml configuration file"""
+"""TcEx Framework Module"""
 # pylint: disable=no-self-argument
 # standard library
 import re

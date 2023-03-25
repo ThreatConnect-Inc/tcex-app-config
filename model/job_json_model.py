@@ -1,4 +1,4 @@
-"""Model definition for job.json configuration file"""
+"""TcEx Framework Module"""
 # pylint: disable=no-self-argument
 
 # third-party

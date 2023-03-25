@@ -8,7 +8,7 @@ import re
 import sys
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, NoReturn, cast
+from typing import Any, cast
 
 try:
     # standard library
@@ -18,6 +18,7 @@ except ImportError:  # pragma: no cover
 
 from ...pleb.cached_property import cached_property
 from ...pleb.none_model import NoneModel
+from ...util.render.render import Render
 from .install_json import InstallJson
 from .layout_json import LayoutJson
 from .model.install_json_model import OutputVariablesModel, ParamsModel
@@ -100,8 +101,7 @@ class Permutation:
             # get install.json param to match layout.json param
             ij_param = self.ij.model.get_param(name)
             if ij_param is None:  # pragma: no cover
-                self.log.error(f'No param found in install.json for "{name}".')
-                sys.exit(1)
+                Render.panel.failure(f'No param found in install.json for "{name}".')
 
             if self.validate_layout_display(self.input_table, lj_param.display) or ij_param.hidden:
                 # only process params that match display query or are hidden
@@ -207,8 +207,7 @@ class Permutation:
         try:
             return sqlite3.connect(':memory:')
         except sqlite3.Error as ex:  # pragma: no cover
-            self.log.error(ex)
-            sys.exit(1)
+            Render.panel.failure(f'Failed initializing database ({ex}).')
 
     def db_create_table(self, table_name: str, columns: list[str]):
         """Create a temporary DB table.
@@ -224,7 +223,7 @@ class Permutation:
             cr = self.db_conn.cursor()
             cr.execute(sql)
         except sqlite3.Error as e:  # pragma: no cover
-            self.handle_error(f'SQL create db failed - SQL: "{sql}", Error: "{e}"')
+            Render.panel.failure(f'SQL create db failed - SQL: "{sql}", Error: "{e}"')
 
     def db_drop_table(self, table_name: str):
         """Drop a DB table.
@@ -237,7 +236,7 @@ class Permutation:
             cr = self.db_conn.cursor()
             cr.execute(sql)
         except sqlite3.Error as e:  # pragma: no cover
-            self.handle_error(f'SQL drop db failed - SQL: "{sql}", Error: "{e}"')
+            Render.panel.failure(f'SQL drop db failed - SQL: "{sql}", Error: "{e}"')
 
     def db_insert_record(self, table_name: str, columns: list[str]):
         """Insert records into DB.
@@ -259,8 +258,7 @@ class Permutation:
             cur = self.db_conn.cursor()
             cur.execute(sql, values)
         except sqlite3.OperationalError as ex:  # type: ignore
-            self.log.error(f'SQL insert failed - SQL: "{sql}", Error: "{ex}"')
-            sys.exit(1)
+            Render.panel.failure(f'SQL insert failed - SQL: "{sql}", Error: "{ex}"')
 
     def db_update_record(self, table_name: str, column: str, value: bool | str | None):
         """Update a single column in the row-column create in db_insert_record.
@@ -288,19 +286,7 @@ class Permutation:
                 cur = self.db_conn.cursor()
                 cur.execute(sql)
             except sqlite3.OperationalError as ex:  # pragma: no cover
-                self.log.error(f'SQL update failed - SQL: "{sql}", Error: "{ex}"')
-                sys.exit(1)
-
-    def handle_error(self, err: str) -> NoReturn:  # pragma: no cover
-        """Print errors message and optionally exit.
-
-        Args:
-            err: The error message to print.
-            halt: If True, the script will exit.
-        """
-        self.log.error(err)
-        print(err)
-        sys.exit(1)
+                Render.panel.failure(f'SQL update failed - SQL: "{sql}", Error: "{ex}"')
 
     def get_action_input_names(self, action: str) -> list[str]:
         """Return the input names for the provided action."""
@@ -494,12 +480,12 @@ class Permutation:
     def permutations(self):
         """Process layout.json names/display to get all permutations of args."""
         if not self.lj.has_layout:  # pragma: no cover
-            print('Only Apps with a layout.json are supported.')
-            sys.exit(1)
+            Render.panel.failure('Only Apps with a layout.json are supported.')
 
         if 'sqlite3' not in sys.modules:  # pragma: no cover
-            print('The sqlite3 module needs to be built-in to Python for this feature.')
-            sys.exit(1)
+            Render.panel.failure(
+                'The sqlite3 module needs to be built-in to Python for this feature.'
+            )
 
         # create db for permutations testing
         self.db_create_table(self.input_table, self.ij.model.param_names)
@@ -581,12 +567,11 @@ class Permutation:
                 if rows[0][0] > 0:
                     display = True
             except sqlite3.Error as e:  # pragma: no cover
-                print(f'"{display_query}" query returned an error: ({e}).')
-                sys.exit(1)
+                Render.panel.failure(f'"{display_query}" query returned an error: ({e}).')
         return display
 
     def write_permutations_file(self):
-        """Print all valid permutations."""
+        """Write permutations file."""
         _permutations = []
         for index, permutations in enumerate(self.input_permutations):
             _permutations.append(
@@ -595,4 +580,4 @@ class Permutation:
 
         with self.fqfn.open(mode='w', encoding='utf-8') as fh:
             json.dump(_permutations, fh, indent=2, sort_keys=True)
-        print('All permutations written to the "permutations.json" file.')
+        Render.panel.success('All permutations written to the "permutations.json" file.')

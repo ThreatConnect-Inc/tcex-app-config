@@ -34,6 +34,7 @@ ignore = [
 disable = [
   "broad-exception-caught",
   "fixme",
+  "inconsistent-return-statements", # pylint doesn't properly handle "NoReturn" in all cases
   "invalid-name",
   "logging-fstring-interpolation",
   "relative-beyond-top-level", # disable relative rule due to this project being a submodule

@@ -1,4 +1,4 @@
-"""Model definition for layout.json configuration file"""
+"""TcEx Framework Module"""
 # pylint: disable=no-self-argument
 # standard library
 from collections import OrderedDict
