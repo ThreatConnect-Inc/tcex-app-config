@@ -1,4 +1,4 @@
-"""Model for install.json configuration file"""
+"""Model definition for install.json configuration file"""
 # pylint: disable=no-self-argument
 # standard library
 import os
@@ -23,11 +23,11 @@ def snake_to_camel(snake_string: str) -> str:
 
 
 # define JSON encoders
-json_encoders = {Version: str}  # pylint: disable=unnecessary-lambda
+json_encoders = {Version: str, UUID4: str, UUID5: str}
 
 
 class DeprecationModel(BaseModel):
-    """Model for install_json.deprecation"""
+    """Model definition for install_json.deprecation"""
 
     indicator_type: str | None = Field(
         None,
@@ -58,7 +58,7 @@ class DeprecationModel(BaseModel):
 
 
 class FirstRunParamsModel(BaseModel):
-    """Model for install_json.deprecation"""
+    """Model definition for install_json.deprecation"""
 
     param: str | None = Field(
         None,
@@ -77,7 +77,7 @@ class FirstRunParamsModel(BaseModel):
 
 
 class FeedsModel(BaseModel):
-    """Model for install_json.feeds"""
+    """Model definition for install_json.feeds"""
 
     attributes_file: str | None = Field(
         None,
@@ -165,7 +165,7 @@ class TypeEnum(str, Enum):
 
 
 class ParamsModel(BaseModel):
-    """Model for install_json.params"""
+    """Model definition for install_json.params"""
 
     allow_multiple: bool = Field(
         False,
@@ -326,7 +326,7 @@ class ParamsModel(BaseModel):
 
 
 class OutputVariablesModel(BaseModel):
-    """Model for install_json.playbook.outputVariables"""
+    """Model definition for install_json.playbook.outputVariables"""
 
     # sensitive value
     encrypt: bool = Field(
@@ -360,7 +360,7 @@ class OutputVariablesModel(BaseModel):
 
 
 class RetryModel(BaseModel):
-    """Model for install_json.playbook.retry"""
+    """Model definition for install_json.playbook.retry"""
 
     actions: list[str] = Field(
         [],
@@ -397,7 +397,7 @@ class RetryModel(BaseModel):
 
 
 class PlaybookModel(BaseModel):
-    """Model for install_json.playbook"""
+    """Model definition for install_json.playbook"""
 
     output_prefix: str | None = Field(None, description='')
     output_variables: list[OutputVariablesModel] = Field(
@@ -427,7 +427,7 @@ class PlaybookModel(BaseModel):
 
 
 class ServiceModel(BaseModel):
-    """Model for install_json.service"""
+    """Model definition for install_json.service"""
 
     discovery_types: list[str] = Field(
         [],
@@ -479,7 +479,7 @@ def gen_app_id() -> UUID5:
 
 
 class InstallJsonCommonModel(BaseModel):
-    """Install JSON Common Model
+    """Model definition for install.json common configuration
 
     This model contains the common fields for the install.json file and
     the app_spec.yaml file.
@@ -653,7 +653,11 @@ class InstallJsonCommonModel(BaseModel):
 
         # update version
         if v >= Version('4.0.0'):
-            return Version(version('tcex'))
+            try:
+                # best effort to update the tcex version
+                return Version(version('tcex'))
+            except Exception:
+                return v
 
         return v
 
@@ -758,7 +762,7 @@ class InstallJsonOrganizationModel(BaseModel):
 
 
 class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
-    """Install JSON Model"""
+    """Model definition for install.json configuration file"""
 
     commit_hash: str | None = Field(
         default_factory=get_commit_hash,

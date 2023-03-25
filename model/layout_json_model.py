@@ -1,4 +1,4 @@
-"""Model for layout.json configuration file"""
+"""Model definition for layout.json configuration file"""
 # pylint: disable=no-self-argument
 # standard library
 from collections import OrderedDict
@@ -19,7 +19,7 @@ def snake_to_camel(snake_string: str) -> str:
 
 
 class ParametersModel(BaseModel):
-    """Model for layout_json.inputs.{}"""
+    """Model definition for layout_json.inputs.{}"""
 
     display: str | None
     name: str
@@ -32,7 +32,7 @@ class ParametersModel(BaseModel):
 
 
 class InputsModel(BaseModel):
-    """Model for layout_json.inputs"""
+    """Model definition for layout_json.inputs"""
 
     parameters: list[ParametersModel]
     sequence: int
@@ -46,7 +46,7 @@ class InputsModel(BaseModel):
 
 
 class OutputsModel(BaseModel):
-    """Model for layout_json.outputs"""
+    """Model definition for layout_json.outputs"""
 
     display: str | None
     name: str
@@ -59,7 +59,7 @@ class OutputsModel(BaseModel):
 
 
 class LayoutJsonModel(BaseModel):
-    """Layout JSON Model"""
+    """Model definition for layout.json configuration file"""
 
     inputs: list[InputsModel]
     outputs: list[OutputsModel] = Field([], description='Layout output variable definitions.')

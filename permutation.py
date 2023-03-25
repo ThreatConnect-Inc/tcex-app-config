@@ -1,4 +1,4 @@
-"""Permutation"""
+"""TcEx Framework Module"""
 # standard library
 import json
 import logging
@@ -38,18 +38,21 @@ class InputModel(ParamsModel):
 
 
 class Permutation:
-    """Permutations Module"""
+    """Permutations Module
+
+    Calculate permutations for inputs and outputs based on layout.json and install.json files.
+    """
 
     def __init__(self):
         """Initialize instance properties"""
 
         # properties
         self._input_names = None
-        self._input_table = 'inputs'
         self._input_permutations: list[list[InputModel]] = []
         self._output_permutations: list[list[OutputVariablesModel]] = []
         self.fqfn = Path(os.getcwd(), 'permutations.json')
         self.ij = InstallJson()
+        self.input_table = 'inputs'
         self.lj = LayoutJson()
         self.log = _logger
 
@@ -100,7 +103,7 @@ class Permutation:
                 self.log.error(f'No param found in install.json for "{name}".')
                 sys.exit(1)
 
-            if self.validate_layout_display(self._input_table, lj_param.display) or ij_param.hidden:
+            if self.validate_layout_display(self.input_table, lj_param.display) or ij_param.hidden:
                 # only process params that match display query or are hidden
                 if name != 'tc_action' and name not in self._display_keywords:
                     params.append(self._create_input_model(ij_param, None))
@@ -112,7 +115,7 @@ class Permutation:
                         params.append(self._create_input_model(ij_param, val))
 
                         # update the data in the sqlite db so for next iteration
-                        self.db_update_record(self._input_table, name, val)
+                        self.db_update_record(self.input_table, name, val)
 
                         # recursively call method to get all permutations
                         self._gen_permutations(index + 1, list(params))
@@ -124,7 +127,7 @@ class Permutation:
                         params.append(self._create_input_model(ij_param, val))
 
                         # update the data in the sqlite db so for next iteration
-                        self.db_update_record(self._input_table, name, val)
+                        self.db_update_record(self.input_table, name, val)
 
                         # recursively call method to get all permutations
                         self._gen_permutations(index + 1, list(params))
@@ -150,7 +153,7 @@ class Permutation:
                     # get layout.json param to match install.json output variable
                     lj_output: NoneModel | OutputsModel = self.lj.model.get_output(o.name)
                     if isinstance(lj_output, OutputsModel):
-                        valid = self.validate_layout_display(self._input_table, lj_output.display)
+                        valid = self.validate_layout_display(self.input_table, lj_output.display)
                         if lj_output.display is None or not valid:
                             continue
                     # output meet permutation check
@@ -363,14 +366,14 @@ class Permutation:
             self._output_permutations = []
 
             # create db for permutations testing
-            self.db_create_table(self._input_table, self.ij.model.param_names)
-            self.db_insert_record(self._input_table, self.ij.model.param_names)
+            self.db_create_table(self.input_table, self.ij.model.param_names)
+            self.db_insert_record(self.input_table, self.ij.model.param_names)
 
             # only gen permutations if none have been generated previously
             self._gen_permutations()
 
             # drop database
-            self.db_drop_table(self._input_table)
+            self.db_drop_table(self.input_table)
 
     def inputs_by_action(
         self, action: str, include_hidden: bool = True
@@ -499,8 +502,8 @@ class Permutation:
             sys.exit(1)
 
         # create db for permutations testing
-        self.db_create_table(self._input_table, self.ij.model.param_names)
-        self.db_insert_record(self._input_table, self.ij.model.param_names)
+        self.db_create_table(self.input_table, self.ij.model.param_names)
+        self.db_insert_record(self.input_table, self.ij.model.param_names)
 
         # only gen permutations if none have been generated previously
         if not all([self._input_permutations, self._output_permutations]):

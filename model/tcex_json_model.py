@@ -1,4 +1,4 @@
-"""Model for tcex.json configuration file"""
+"""Model definition for tcex.json configuration file"""
 # standard library
 from pathlib import PosixPath
 
@@ -10,7 +10,7 @@ __all__ = ['TcexJsonModel']
 
 # pylint: disable=no-self-argument
 class PackageModel(BaseModel):
-    """Model for tcex_json.package"""
+    """Model definition for tcex_json.package"""
 
     app_name: str
     app_version: str | None
@@ -31,7 +31,7 @@ class PackageModel(BaseModel):
 
 
 class TcexJsonModel(BaseModel):
-    """TcEx JSON Model"""
+    """Model definition for tcex.json configuration file"""
 
     package: PackageModel
     template_name: str

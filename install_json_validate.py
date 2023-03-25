@@ -1,4 +1,4 @@
-"""Class for install.json validator"""
+"""TcEx Framework Module"""
 # standard library
 from typing import TYPE_CHECKING
 
@@ -7,10 +7,10 @@ if TYPE_CHECKING:  # pragma: no cover
 
 
 class InstallJsonValidate:
-    """Class for install.json validator"""
+    """Config object for install.json file (validator)"""
 
     def __init__(self, ij: 'InstallJson'):  # pylint: disable=E0601
-        """Initialize class properties."""
+        """Initialize instance properties."""
         self.ij = ij
 
     def validate_duplicate_input(self) -> list:

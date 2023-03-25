@@ -1,4 +1,4 @@
-"""Class for job.json configuration file"""
+"""TcEx Framework Module"""
 # standard library
 import json
 import logging
@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
 class JobJson(metaclass=Singleton):
-    """Class for job.json configuration file"""
+    """Config object for job.json file"""
 
     def __init__(
         self,
@@ -22,7 +22,7 @@ class JobJson(metaclass=Singleton):
         path: Path | str | None = None,
         logger: logging.Logger | None = None,
     ):
-        """Initialize class properties."""
+        """Initialize instance properties."""
         filename = filename or 'tcex.json'
         path = Path(path or Path.cwd())
         self.log = logger or _logger

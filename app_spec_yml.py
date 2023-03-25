@@ -1,4 +1,4 @@
-"""Class for app_spec.yml configuration file"""
+"""TcEx Framework Module"""
 # standard library
 import json
 import logging
@@ -25,7 +25,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
 class AppSpecYml:
-    """Class for app_spec.yml configuration file"""
+    """Class object for app_spec.yml configuration file"""
 
     def __init__(
         self,
@@ -33,7 +33,7 @@ class AppSpecYml:
         path: str | None = None,
         logger: logging.Logger | None = None,
     ):
-        """Initialize class properties."""
+        """Initialize instance properties."""
         filename = filename or 'app_spec.yml'
         path = path or os.getcwd()
         self.log = logger or _logger

@@ -1,4 +1,4 @@
-"""Class for tcex.json configuration updater"""
+"""TcEx Framework Module"""
 # standard library
 import os
 from typing import TYPE_CHECKING
@@ -8,10 +8,10 @@ if TYPE_CHECKING:
 
 
 class TcexJsonUpdate:
-    """Class for tcex.json configuration updater"""
+    """Config object for tcex.json configuration file (updater)"""
 
-    def __init__(self, tj: 'TcexJson'):  # pylint: disable=E0601
-        """Initialize class properties."""
+    def __init__(self, tj: 'TcexJson'):
+        """Initialize instance properties."""
         self.tj = tj
 
     def multiple(self, template: str | None = None):

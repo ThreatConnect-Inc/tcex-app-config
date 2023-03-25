@@ -1,4 +1,4 @@
-"""Class for tcex.json configuration file"""
+"""TcEx Framework Module"""
 # standard library
 import json
 import logging
@@ -15,7 +15,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
 class TcexJson:
-    """Class for tcex.json configuration file"""
+    """Config object for tcex.json configuration file"""
 
     def __init__(
         self,
@@ -23,7 +23,7 @@ class TcexJson:
         path: Path | str | None = None,
         logger: logging.Logger | None = None,
     ):
-        """Initialize class properties."""
+        """Initialize instance properties."""
         filename = filename or 'tcex.json'
         path = Path(path or Path.cwd())
         self.log = logger or _logger
@@ -54,21 +54,6 @@ class TcexJson:
     def model(self) -> TcexJsonModel:
         """Return the Install JSON model."""
         return TcexJsonModel(**self.contents)
-
-    def print_warnings(self):
-        """Print warning messages for tcex.json file."""
-
-        # raise error if tcex.json is missing app_name field
-        if self.model.package.app_name is None:  # pragma: no cover
-            raise RuntimeError('The tcex.json file is missing the package.app_name field.')
-
-        # log warning for old Apps
-        if self.model.package.app_version is not None:
-            print(
-                'WARNING: The tcex.json file defines "app_version" which should only be '
-                'defined in legacy Apps. Removing the value can cause the App to be treated '
-                'as a new App by TcExchange. Please remove "app_version" when appropriate.'
-            )
 
     @property
     def update(self) -> TcexJsonUpdate:

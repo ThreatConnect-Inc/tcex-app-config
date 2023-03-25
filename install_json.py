@@ -1,4 +1,4 @@
-"""Class for install.json configuration file"""
+"""TcEx Framework Module"""
 # standard library
 import json
 import logging
@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
 class InstallJson:
-    """Class for install.json configuration file
+    """Config object for install.json configuration file
 
     This class can't be a Singleton because it's used by the package
     command to create a install.json file in the build directory.
@@ -28,7 +28,7 @@ class InstallJson:
         path: Path | str | None = None,
         logger: logging.Logger | None = None,
     ):
-        """Initialize class properties."""
+        """Initialize instance properties."""
         filename = filename or 'install.json'
         path = Path(path or Path.cwd())
         self.log = logger or _logger

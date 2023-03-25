@@ -1,4 +1,4 @@
-"""Model for app_spec.yml configuration file"""
+"""Model definition for app_spec.yml configuration file"""
 # pylint: disable=no-self-argument
 # standard library
 import re
@@ -20,17 +20,15 @@ from .install_json_model import (
 )
 from .job_json_model import JobJsonCommonModel
 
-__all__ = ['AppSpecYmlModel']
-
 
 class FeedsSpecModel(FeedsModel):
-    """Model for app_spec.organization.feeds."""
+    """Model definition for app_spec.organization.feeds."""
 
     job: JobJsonCommonModel = Field(..., description='')
 
 
 class NotesPerActionModel(BaseModel):
-    """Model for app_spec.notes_per_action."""
+    """Model definition for app_spec.notes_per_action."""
 
     action: str = Field(..., description='The action name.')
     note: str = Field(..., description='The note describing the action.')
@@ -43,7 +41,7 @@ class NotesPerActionModel(BaseModel):
 
 
 class OrganizationModel(InstallJsonOrganizationModel):
-    """Model for app_spec.organization."""
+    """Model definition for app_spec.organization."""
 
     feeds: list[FeedsSpecModel] = Field([], description='')
 
@@ -55,7 +53,7 @@ class OrganizationModel(InstallJsonOrganizationModel):
 
 
 class OutputVariablesSpecModel(OutputVariablesModel):
-    """Model for app_spec.outputs.output_variables."""
+    """Model definition for app_spec.outputs.output_variables."""
 
     disabled: bool = Field(
         False,
@@ -74,7 +72,7 @@ class OutputVariablesSpecModel(OutputVariablesModel):
 
 
 class OutputDataModel(BaseModel):
-    """Model for app_spec.output_data."""
+    """Model definition for app_spec.output_data."""
 
     display: str | None = Field(
         None,
@@ -100,7 +98,7 @@ class OutputDataModel(BaseModel):
 
 
 class ParamsSpecModel(ParamsModel):
-    """Model for app_spec.params."""
+    """Model definition for app_spec.params."""
 
     display: str | None = Field(
         None,
@@ -126,7 +124,7 @@ class ParamsSpecModel(ParamsModel):
 
 
 class PlaybookSpecModel(BaseModel):
-    """Model for app_spec.playbook."""
+    """Model definition for app_spec.playbook."""
 
     retry: RetryModel | None = Field(
         None,
@@ -141,7 +139,7 @@ class PlaybookSpecModel(BaseModel):
 
 
 class ReleaseNoteModel(BaseModel):
-    """Model for app_spec.releaseNotes."""
+    """Model definition for app_spec.releaseNotes."""
 
     notes: list[str] = Field(
         ...,
@@ -160,7 +158,7 @@ class ReleaseNoteModel(BaseModel):
 
 
 class SectionsModel(BaseModel):
-    """Model for app_spec.sections."""
+    """Model definition for app_spec.sections."""
 
     section_name: str = Field(
         ...,
@@ -179,7 +177,7 @@ class SectionsModel(BaseModel):
 
 
 class AppSpecYmlModel(InstallJsonCommonModel):
-    """Model for the app_spec.yml file."""
+    """Model definition for the app_spec.yml file."""
 
     note_per_action: list[NotesPerActionModel] | None = Field(
         None,

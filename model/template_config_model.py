@@ -1,4 +1,4 @@
-"""Model for template.yaml configuration file"""
+"""Model definition for template.yaml configuration file"""
 # pylint: disable=no-self-argument
 # third-party
 from pydantic import BaseModel, validator
@@ -6,7 +6,7 @@ from semantic_version import Version
 
 
 class TemplateConfigModel(BaseModel):
-    """App Template Config Model."""
+    """Model definition for template.yaml configuration file"""
 
     contributor: str
     description: str
@@ -30,3 +30,8 @@ class TemplateConfigModel(BaseModel):
         arbitrary_types_allowed = True
         json_encoders = {Version: lambda v: str(v)}  # pylint: disable=unnecessary-lambda
         validate_assignment = True
+
+    @property
+    def install_command(self) -> str:
+        """Return the install command for the template."""
+        return f'tcex init --type {self.type} --template {self.name}'

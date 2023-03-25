@@ -1,4 +1,4 @@
-"""Model for tcex.json configuration file"""
+"""Model definition for job.json configuration file"""
 # pylint: disable=no-self-argument
 
 # third-party
@@ -15,7 +15,7 @@ def snake_to_camel(snake_string: str) -> str:
 
 
 class ParamsModel(BaseModel):
-    """Model for jj.params"""
+    """Model definition for job.json.params"""
 
     default: bool | str | None
     encrypt: bool = False
@@ -32,7 +32,7 @@ class ParamsModel(BaseModel):
 
 
 class JobJsonCommonModel(BaseModel):
-    """Model for common field in job.json."""
+    """Model definition for common field in job.json."""
 
     allow_on_demand: bool = Field(
         ...,
@@ -82,7 +82,7 @@ class JobJsonCommonModel(BaseModel):
 
 
 class JobJsonModel(JobJsonCommonModel):
-    """Model for field in job.json."""
+    """Model definition for job.json configuration file"""
 
     program_name: str
     program_version: str

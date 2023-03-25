@@ -1,4 +1,4 @@
-"""Class for install.json updater"""
+"""TcEx Framework Module"""
 # standard library
 import os
 import platform
@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 
 
 class InstallJsonUpdate:
-    """Class for install.json updater."""
+    """Config object for install.json file (update)"""
 
     def __init__(self, ij: 'InstallJson'):  # pylint: disable=E0601
-        """Initialize class properties"""
+        """Initialize instance properties"""
         self.ij = ij
 
     def multiple(
