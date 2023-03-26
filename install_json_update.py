@@ -176,4 +176,8 @@ class InstallJsonUpdate:
 
     def update_sdk_version(self):
         """Update sdk version."""
-        self.ij.model.sdk_version = Version(version('tcex'))
+        try:
+            # best effort to get the version of the tcex package
+            self.ij.model.sdk_version = Version(version('tcex'))
+        except ImportError:
+            pass
