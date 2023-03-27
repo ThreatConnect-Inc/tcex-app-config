@@ -192,6 +192,7 @@ class InstallJson:
 
         Args:
             name: The name of the input to return.
+            hidden: If set the inputs will be filtered based on hidden field.
             required: If set the inputs will be filtered based on required field.
             service_config: If set the inputs will be filtered based on serviceConfig field.
             _type: The type of input to return.

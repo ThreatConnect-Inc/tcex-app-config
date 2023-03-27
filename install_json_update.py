@@ -115,7 +115,7 @@ class InstallJsonUpdate:
             ]:
                 features.append(feature)
 
-        self.ij.model.features = sorted(list(set(features)))
+        self.ij.model.features = sorted(set(features))
 
     def update_language_version(self):
         """Update language version."""

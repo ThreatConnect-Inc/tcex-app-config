@@ -356,6 +356,7 @@ class OutputVariablesModel(BaseModel):
         validate_assignment = True
 
     def __hash__(self):
+        """Make model hashable."""
         return hash(f'{self.name}{self.type}')
 
 

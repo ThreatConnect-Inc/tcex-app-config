@@ -249,7 +249,7 @@ class Permutation:
             columns: The DB column names.
         """
         # sort and unique columns
-        columns = sorted(list(set(columns)))
+        columns = sorted(set(columns))
         bindings = ', '.join(['?'] * len(columns))
         columns_string = ', '.join([f'''"{c.strip('"').strip("'")}"''' for c in columns])
         values = [None] * len(columns)
