@@ -4,7 +4,6 @@ from .install_json_model import InstallJsonModel
 from .job_json_model import JobJsonModel
 from .layout_json_model import LayoutJsonModel
 from .tcex_json_model import TcexJsonModel
-from .template_config_model import TemplateConfigModel
 
 __all__ = [
     'AppSpecYmlModel',
@@ -12,5 +11,4 @@ __all__ = [
     'JobJsonModel',
     'LayoutJsonModel',
     'TcexJsonModel',
-    'TemplateConfigModel',
 ]
