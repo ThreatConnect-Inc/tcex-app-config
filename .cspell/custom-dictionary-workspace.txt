@@ -1,0 +1,14 @@
+# Custom Dictionary Words
+apiservice
+autofix
+codespell
+editchoice
+feedapiservice
+keyvaluelist
+maxsplit
+multichoice
+pyright
+Taxii
+TCVA
+TCVC
+TCVW
