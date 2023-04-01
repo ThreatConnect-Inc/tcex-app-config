@@ -179,5 +179,5 @@ class InstallJsonUpdate:
         try:
             # best effort to get the version of the tcex package
             self.ij.model.sdk_version = Version(version('tcex'))
-        except ImportError:
+        except (ImportError, ValueError):
             pass
