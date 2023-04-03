@@ -66,10 +66,9 @@ class TcexJsonUpdate:
         for i in [
             '.gitignore',
             '.pre-commit-config.yaml',
+            'app_spec.yaml',
             'local-*',
             'pyproject.toml',
-            'setup.cfg',
-            'tcex.json',
         ]:
             if i not in self.tj.model.package.excludes:
                 # TODO: [low] pydantic doesn't seem to allow removing items from list???
