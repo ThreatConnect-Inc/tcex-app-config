@@ -636,8 +636,8 @@ class InstallJsonCommonModel(BaseModel):
         def _major_minor(v):
             """Return the major.minor version."""
             try:
-                version = Version(v)
-                v = f'{version.major}.{version.minor}'
+                version_ = Version(v)
+                v = f'{version_.major}.{version_.minor}'
             except Exception:  # nosec
                 # best effort
                 pass
