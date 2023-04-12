@@ -1,7 +1,6 @@
 """TcEx Framework Module"""
 # standard library
 import os
-import platform
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
@@ -22,7 +21,7 @@ class InstallJsonUpdate:
     def multiple(
         self,
         features: bool = True,
-        language_version: bool = True,
+        # language_version: bool = True,
         migrate: bool = False,
         sequence: bool = True,
         valid_values: bool = True,
@@ -44,9 +43,9 @@ class InstallJsonUpdate:
         if features is True:
             self.update_features()
 
-        if language_version is True:
-            # update language version to the current version of Python
-            self.update_language_version()
+        # if language_version is True:
+        #     # update language version to the current version of Python
+        #     self.update_language_version()
 
         if migrate is True:
             # update programMain to run
@@ -117,9 +116,9 @@ class InstallJsonUpdate:
 
         self.ij.model.features = sorted(set(features))
 
-    def update_language_version(self):
-        """Update language version."""
-        self.ij.model.language_version = Version(platform.python_version())
+    # def update_language_version(self):
+    #     """Update language version."""
+    #     self.ij.model.language_version = Version(platform.python_version())
 
     def update_program_main(self):
         """Update program main."""

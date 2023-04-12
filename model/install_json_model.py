@@ -550,7 +550,7 @@ class InstallJsonCommonModel(BaseModel):
         [],
         description='A list of labels for the App.',
     )
-    language_version: Version = Field(
+    language_version: str = Field(
         ...,
         description=(
             'The major.minor version of the language (e.g., Python "3.11"). This value is used by '
@@ -630,17 +630,34 @@ class InstallJsonCommonModel(BaseModel):
         return v
 
     @validator('language_version', always=True, pre=True)
-    def _language_version(cls, v) -> Version:
+    def _language_version(cls, v) -> str:
         """Return a version object for "version" field."""
+
+        def _major_minor(v):
+            """Return the major.minor version."""
+            try:
+                version = Version(v)
+                v = f'{version.major}.{version.minor}'
+            except Exception:  # nosec
+                # best effort
+                pass
+
+            return v
+
         if v is None:
-            return Version(platform.python_version())
+            v = _major_minor(platform.python_version())
+        else:
+            # for TC version >= 7.0.1 and < 7.2.0
+            v = _major_minor(v)
 
-        if not isinstance(v, Version):
-            # handle non-sematic version strings (e.g., 3.6)
-            if re.match(r'^\d+\.\d+$', str(v)):
-                v = f'{v}.0'
+        # This code has to wait until all customers on on TC 7.2.0 or greater
+        # if not isinstance(v, Version):
+        #     # handle non-sematic version strings (e.g., 3.6)
+        #     if re.match(r'^\d+\.\d+$', str(v)):
+        #         v = f'{v}.0'
+        # return v if isinstance(v, Version) else Version(v)
 
-        return v if isinstance(v, Version) else Version(v)
+        return v
 
     @validator('sdk_version', always=True, pre=True)
     def _sdk_version(cls, v) -> Version:
