@@ -430,68 +430,6 @@ class AppSpecYml:
 
         return AppSpecYmlModel(**self.contents)
 
-    @staticmethod
-    def order_data(asy_data: dict) -> dict:
-        """Order field with direction given by Business Analysis."""
-        asy_data_ordered = {}
-
-        # TODO: [low] rewrite this section to iterate over fields in order
-
-        # "important" fields
-        asy_data_ordered['displayName'] = asy_data.get('displayName')
-        asy_data_ordered['packageName'] = asy_data.get('packageName')
-        asy_data_ordered['appId'] = asy_data.get('appId')
-        asy_data_ordered['category'] = asy_data.get('category', '')
-        asy_data_ordered['programVersion'] = asy_data.get('programVersion')
-        if asy_data.get('displayPath') is not None:
-            asy_data_ordered['displayPath'] = asy_data.get('displayPath')
-        if asy_data.get('internalNotes') is not None:
-            asy_data_ordered['internalNotes'] = asy_data.get('internalNotes', [])
-        asy_data_ordered['releaseNotes'] = asy_data.get('releaseNotes', [])
-        asy_data_ordered['deprecatesApps'] = asy_data.get('deprecatesApps', [])
-        asy_data_ordered['features'] = asy_data.get('features')
-        asy_data_ordered['labels'] = asy_data.get('labels', [])
-        asy_data_ordered['minServerVersion'] = asy_data.get('minServerVersion')
-        asy_data_ordered['note'] = asy_data.get('note') or ''
-        if asy_data_ordered.get('serviceDetails'):
-            asy_data_ordered['serviceDetails'] = asy_data.get('serviceDetails')
-        if asy_data.get('notePerAction') is not None:
-            asy_data_ordered['notePerAction'] = asy_data.get('notePerAction')
-        asy_data_ordered['runtimeLevel'] = asy_data.get('runtimeLevel')
-
-        # per runtime level (App type)
-        if asy_data.get('organization'):
-            asy_data_ordered['organization'] = asy_data.get('organization')
-        if asy_data.get('playbook'):
-            asy_data_ordered['playbook'] = asy_data.get('playbook')
-        if asy_data.get('service'):
-            asy_data_ordered['service'] = asy_data.get('service')
-
-        # inputs / outputs
-        asy_data_ordered['sections'] = asy_data.get('sections')
-        if asy_data['runtimeLevel'].lower() not in (
-            'apiservice',
-            'feedapiservice',
-            'organization',
-        ):
-            asy_data_ordered['outputData'] = asy_data.get('outputData')
-        if asy_data.get('outputPrefix'):
-            asy_data_ordered['outputPrefix'] = asy_data.get('outputPrefix')
-
-        # standard fields
-        asy_data_ordered['allowOnDemand'] = asy_data.get('allowOnDemand', True)
-        if asy_data.get('allowRunAsUser') is not None:
-            asy_data_ordered['allowRunAsUser'] = asy_data.get('allowRunAsUser')
-        asy_data_ordered['programLanguage'] = asy_data.get('programLanguage')
-        asy_data_ordered['languageVersion'] = asy_data.get('languageVersion')
-        asy_data_ordered['programMain'] = asy_data.get('programMain')
-        asy_data_ordered['listDelimiter'] = asy_data.get('listDelimiter')
-
-        # auto-generated
-        asy_data_ordered['schemaVersion'] = str(asy_data.get('schemaVersion', '1.1.0'))
-
-        return asy_data_ordered
-
     def fix_contents(self, contents: dict):
         """Fix missing data"""
         # fix for null appId value
@@ -534,4 +472,4 @@ class AppSpecYml:
     def write(self, contents: dict):
         """Write yaml to file."""
         with self.fqfn.open(mode='w', encoding='utf-8') as fh:
-            fh.write(self.dict_to_yaml(self.order_data(contents)))
+            fh.write(self.dict_to_yaml(contents))
