@@ -82,12 +82,13 @@ class InstallJsonUpdate:
                     'aotExecutionEnabled',
                     'appBuilderCompliant',
                     'fileParams',
+                    'redisPasswordSupport',
                     'runtimeVariables',
                     'secureParams',
                 ]
             )
         elif self.ij.model.is_service_app:
-            features.extend(['appBuilderCompliant', 'fileParams'])
+            features.extend(['appBuilderCompliant', 'fileParams', 'redisPasswordSupport'])
 
         # add layoutEnabledApp if layout.json file exists in project
         if os.path.isfile(os.path.join(self.ij.fqfn.parent, 'layout.json')):  # pragma: no cover
