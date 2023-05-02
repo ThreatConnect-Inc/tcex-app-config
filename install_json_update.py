@@ -99,6 +99,7 @@ class InstallJsonUpdate:
                 'advancedRequest',
                 'CALSettings',
                 'layoutEnabledApp',
+                'redisPasswordSupport',
                 'smtpSettings',
                 'webhookResponseMarshall',
                 'webhookServiceEndpoint',
