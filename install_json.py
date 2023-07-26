@@ -68,7 +68,7 @@ class InstallJson:
         return {
             'displayName': 'External App',
             'features': [],
-            'languageVersion': '3.9',
+            'languageVersion': '3.11',
             'listDelimiter': '|',
             'programLanguage': 'python',
             'programMain': 'run.py',

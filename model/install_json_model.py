@@ -622,13 +622,6 @@ class InstallJsonCommonModel(BaseModel):
         ),
     )
 
-    @validator('min_server_version', 'program_version', pre=True)
-    def version(cls, v) -> Version:
-        """Return a version object for "version" fields."""
-        if v is not None:
-            return Version(v)
-        return v
-
     @validator('language_version', always=True, pre=True)
     def _language_version(cls, v) -> str:
         """Return a version object for "version" field."""
@@ -636,7 +629,7 @@ class InstallJsonCommonModel(BaseModel):
         def _major_minor(v):
             """Return the major.minor version."""
             try:
-                version_ = Version(v)
+                version_ = Version.coerce(v)
                 v = f'{version_.major}.{version_.minor}'
             except Exception:  # nosec
                 # best effort
@@ -650,13 +643,21 @@ class InstallJsonCommonModel(BaseModel):
             # for TC version >= 7.0.1 and < 7.2.0
             v = _major_minor(v)
 
-        # This code has to wait until all customers on on TC 7.2.0 or greater
-        # if not isinstance(v, Version):
-        #     # handle non-sematic version strings (e.g., 3.6)
-        #     if re.match(r'^\d+\.\d+$', str(v)):
-        #         v = f'{v}.0'
-        # return v if isinstance(v, Version) else Version(v)
+        return v
 
+    @validator('min_server_version', pre=True)
+    def _min_server_version(cls, v) -> Version:
+        """Return a version object for "version" fields."""
+        # all tcex 4 Apps must have min server version of at least 7.2.0
+        if v is None or Version.coerce(v) < Version('7.2.0'):
+            v = '7.2.0'
+        return Version.coerce(v)
+
+    @validator('program_version', pre=True)
+    def _program_version(cls, v) -> Version:
+        """Return a version object for "version" fields."""
+        if v is not None:
+            return Version(v)
         return v
 
     @validator('sdk_version', always=True, pre=True)
@@ -667,13 +668,13 @@ class InstallJsonCommonModel(BaseModel):
             return Version('2.0.0')
 
         # ensure v is a Version object
-        v = v if isinstance(v, Version) else Version(v)
+        v = v if isinstance(v, Version) else Version.coerce(v)
 
         # update version
         if v >= Version('4.0.0'):
             try:
                 # best effort to update the tcex version
-                return Version(version('tcex'))
+                return Version.coerce(version('tcex'))
             except Exception:
                 return v
 
