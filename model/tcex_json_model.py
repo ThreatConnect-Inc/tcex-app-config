@@ -34,9 +34,9 @@ class TcexJsonModel(BaseModel):
     """Model definition for tcex.json configuration file"""
 
     package: PackageModel
-    template_name: str
+    template_name: str | None
     template_repo_hash: str | None = None
-    template_type: str
+    template_type: str | None
 
     class Config:
         """DataModel Config"""
