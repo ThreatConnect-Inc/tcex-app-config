@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 # standard library
-import os
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
@@ -41,7 +40,7 @@ class InstallJsonUpdate:
         """
         # update features array
         if features is True:
-            self.update_features()
+            self.ij.model.features = self.ij.model.updated_features
 
         # if language_version is True:
         #     # update language version to the current version of Python
@@ -69,54 +68,6 @@ class InstallJsonUpdate:
 
         # write updated profile
         self.ij.write()
-
-    def update_features(self):
-        """Update feature set based on App type."""
-        features = ['runtimeVariables']
-
-        if self.ij.model.is_organization_app:
-            features.extend(['fileParams', 'secureParams'])
-        elif self.ij.model.is_playbook_app:
-            features.extend(
-                [
-                    'aotExecutionEnabled',
-                    'appBuilderCompliant',
-                    'fileParams',
-                    'redisPasswordSupport',
-                    'runtimeVariables',
-                ]
-            )
-        elif self.ij.model.is_trigger_app:
-            features.extend(['appBuilderCompliant', 'fileParams', 'redisPasswordSupport'])
-        elif self.ij.model.is_api_service_app:
-            features.extend(['fileParams', 'linkApiPath', 'redisPasswordSupport'])
-
-        # add layoutEnabledApp if layout.json file exists in project
-        if os.path.isfile(os.path.join(self.ij.fqfn.parent, 'layout.json')):  # pragma: no cover
-            features.append('layoutEnabledApp')
-
-        # re-add supported optional features
-        for feature in self.ij.model.features:
-            if feature in [
-                'advancedRequest',
-                'CALSettings',
-                'layoutEnabledApp',
-                'smtpSettings',
-                'webhookResponseMarshall',
-                'webhookServiceEndpoint',
-                # features for TC App loop prevention
-                'CreatesGroup',
-                'CreatesIndicator',
-                'CreatesSecurityLabel',
-                'CreatesTag',
-                'DeletesGroup',
-                'DeletesIndicator',
-                'DeletesSecurityLabel',
-                'DeletesTag',
-            ]:
-                features.append(feature)
-
-        self.ij.model.features = sorted(set(features))
 
     # def update_language_version(self):
     #     """Update language version."""

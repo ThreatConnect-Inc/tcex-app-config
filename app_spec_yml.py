@@ -214,9 +214,6 @@ class AppSpecYml:
         # update the schema version
         contents['schemaVersion'] = contents.get('schemaVersion') or '1.1.0'
 
-        # dict -> mode -> dict (filtered)
-        self.rewrite_contents(contents)
-
     @staticmethod
     def _migrate_schema_100_to_110_app(contents: dict):
         """Migrate 1.0.0 schema to 1.1.0 schema."""
@@ -374,9 +371,9 @@ class AppSpecYml:
         # migrate schema from 1.0.0 to 1.1.0
         if contents.get('schemaVersion', '1.0.0') == '1.0.0':
             self._migrate_schema_100_to_110(contents)
-        else:
-            # reformat file
-            self.rewrite_contents(contents)
+
+        # reformat file
+        self.rewrite_contents(contents)
 
         # migrate schema
         return _load_contents()
@@ -436,6 +433,9 @@ class AppSpecYml:
         if 'appId' in contents and contents.get('appId') is None:
             del contents['appId']
 
+        # update features
+        contents['features'] = AppSpecYmlModel(**contents).updated_features
+
         # fix missing packageName
         if contents.get('packageName') is None:
             contents['packageName'] = self.tj.model.package.app_name
@@ -446,6 +446,13 @@ class AppSpecYml:
         ):
             if self.ij.model.playbook is not None:
                 contents['outputPrefix'] = self.ij.model.playbook.output_prefix
+
+        # ensure displayPath is set for API Service Apps
+        if contents.get('displayPath') is None and contents['runtimeLevel'].lower() in [
+            'apiservice',
+            'feedapiservice',
+        ]:
+            contents['displayPath'] = contents['displayName'].replace(' ', '-').lower()
 
     def rewrite_contents(self, contents: dict):
         """Rewrite app_spec.yml file."""

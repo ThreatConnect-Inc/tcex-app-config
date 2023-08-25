@@ -1,12 +1,13 @@
 """TcEx Framework Module"""
 # pylint: disable=no-self-argument
 # standard library
+import logging
 import os
 import platform
 import re
 import uuid
 from enum import Enum
-from importlib.metadata import version
+from importlib.metadata import version as get_version
 
 # third-party
 from pydantic import BaseModel, Field, validator
@@ -14,6 +15,9 @@ from pydantic.types import UUID4, UUID5, constr
 from semantic_version import Version
 
 __all__ = ['InstallJsonModel']
+
+# get logger
+_logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
 def snake_to_camel(snake_string: str) -> str:
@@ -24,6 +28,28 @@ def snake_to_camel(snake_string: str) -> str:
 
 # define JSON encoders
 json_encoders = {Version: str, UUID4: str, UUID5: str}
+
+
+class _FeatureModel(BaseModel):
+    """Model definition"""
+
+    default: bool | None = Field(
+        False, description='Indicates whether the feature is a default for the App type.'
+    )
+    runtime_levels: list[str] | None = Field(
+        None,
+        description='The runtime levels that the feature is valid for.',
+    )
+    version: Version | None = Field(
+        None,
+        description='The version of TcEx that the feature was added.',
+    )
+
+    class Config:
+        """DataModel Config"""
+
+        arbitrary_types_allowed = True
+        json_encoders = json_encoders
 
 
 class DeprecationModel(BaseModel):
@@ -674,7 +700,7 @@ class InstallJsonCommonModel(BaseModel):
         if v >= Version('4.0.0'):
             try:
                 # best effort to update the tcex version
-                return Version.coerce(version('tcex'))
+                return Version.coerce(get_version('tcex'))
             except Exception:
                 return v
 
@@ -738,6 +764,126 @@ class InstallJsonCommonModel(BaseModel):
             'triggerservice',
             'webhooktriggerservice',
         ]
+
+    @property
+    def known_features(self) -> dict[str, _FeatureModel]:
+        """Return all known features."""
+
+        feature_data = {
+            'advancedRequest': {
+                'runtime_levels': ['playbook'],
+            },
+            'aotExecutionEnabled': {
+                'default': True,
+                'runtime_levels': ['playbook'],
+            },
+            'appBuilderCompliant': {
+                'default': True,
+                'runtime_levels': ['playbook', 'triggerservice', 'webhooktriggerservice'],
+            },
+            'CALSettings': {},
+            'fileParams': {
+                'default': True,
+            },
+            # 'layoutEnabledApp': {
+            #     'runtime_levels': ['playbook', 'triggerservice', 'webhooktriggerservice'],
+            # },
+            'linkApiPath': {
+                'runtime_levels': ['apiservice', 'feedapiservice'],
+            },
+            'redisPasswordSupport': {
+                'default': True,
+                'version': Version('3.0.9'),
+            },
+            'runtimeVariables': {
+                'default': True,
+                'version': Version('3.0.2'),
+            },
+            # 'secureParams': {
+            #     'default': True,
+            #     'runtime_levels': ['organization', 'playbook'],
+            # },
+            'smtpSettings': {},
+            'webhookResponseMarshall': {
+                'runtime_levels': ['webhooktriggerservice'],
+                'version': Version('4.0.0'),
+            },
+            'webhookServiceEndpoint': {
+                'runtime_levels': ['webhooktriggerservice'],
+                'version': Version('4.0.0'),
+            },
+            # features for TC App loop prevention
+            'CreatesGroup': {
+                'runtime_levels': ['playbook'],
+            },
+            'CreatesIndicator': {
+                'runtime_levels': ['playbook'],
+            },
+            'CreatesSecurityLabel': {
+                'runtime_levels': ['playbook'],
+            },
+            'CreatesTag': {
+                'runtime_levels': ['playbook'],
+            },
+            'DeletesGroup': {
+                'runtime_levels': ['playbook'],
+            },
+            'DeletesIndicator': {
+                'runtime_levels': ['playbook'],
+            },
+            'DeletesSecurityLabel': {
+                'runtime_levels': ['playbook'],
+            },
+            'DeletesTag': {
+                'runtime_levels': ['playbook'],
+            },
+        }
+        return {k: _FeatureModel(**v) for k, v in feature_data.items()}
+
+    @property
+    def updated_features(self) -> list[str]:
+        """Update feature set based on App type."""
+        try:
+            tcex_version = Version.coerce(get_version('tcex'))
+        except Exception:
+            tcex_version = Version('2.0.0')
+
+        # normalize features based on App type and TcEx version
+        features = []
+        for feature, model in self.known_features.items():
+            if (
+                model.default is True
+                and (model.version is None or model.version <= tcex_version)
+                and (
+                    model.runtime_levels is None
+                    or self.runtime_level.lower() in model.runtime_levels
+                )
+            ):
+                features.append(feature)
+
+        # add layoutEnabledApp if layout.json file exists in project
+        if os.path.isfile('layout.json'):
+            features.append('layoutEnabledApp')
+
+        # extend feature list with features defined by developer
+        for feature in self.features:
+            model = self.known_features.get(feature)
+
+            if model is None:
+                # not sure what the feature is, but add it anyway
+                features.append(feature)
+
+                # log unknown features
+                _logger.warning(f'Unknown feature found in install.json: {feature}')
+            else:
+                # "drop" features that should not be in the list
+                if (model.version is None or model.version <= tcex_version) and (
+                    model.runtime_levels is None
+                    or self.runtime_level.lower() in model.runtime_levels
+                ):
+                    features.append(feature)
+
+        return sorted(set(features))
 
 
 class InstallJsonOrganizationModel(BaseModel):
