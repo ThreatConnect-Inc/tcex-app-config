@@ -20,8 +20,6 @@ class InstallJsonUpdate:
     def multiple(
         self,
         features: bool = True,
-        # language_version: bool = True,
-        migrate: bool = False,
         sequence: bool = True,
         valid_values: bool = True,
         playbook_data_types: bool = True,
@@ -42,14 +40,6 @@ class InstallJsonUpdate:
         if features is True:
             self.ij.model.features = self.ij.model.updated_features
 
-        # if language_version is True:
-        #     # update language version to the current version of Python
-        #     self.update_language_version()
-
-        if migrate is True:
-            # update programMain to run
-            self.update_program_main()
-
         # update sequence numbers
         if sequence is True:
             self.update_sequence_numbers()
@@ -68,14 +58,6 @@ class InstallJsonUpdate:
 
         # write updated profile
         self.ij.write()
-
-    # def update_language_version(self):
-    #     """Update language version."""
-    #     self.ij.model.language_version = Version(platform.python_version())
-
-    def update_program_main(self):
-        """Update program main."""
-        self.ij.model.program_main = 'run'
 
     def update_sequence_numbers(self):
         """Update program sequence numbers."""
