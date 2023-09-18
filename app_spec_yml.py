@@ -440,6 +440,10 @@ class AppSpecYml:
         if contents.get('packageName') is None:
             contents['packageName'] = self.tj.model.package.app_name
 
+        # fix programMain to always be run.py
+        if contents.get('programMain') in [None, 'run']:
+            contents['programMain'] = 'run.py'
+
         # fix missing outputPrefix
         if contents.get('outputPrefix') is None and 'advancedRequest' in contents.get(
             'features', []
