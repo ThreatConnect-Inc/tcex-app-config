@@ -868,10 +868,11 @@ class InstallJsonCommonModel(BaseModel):
         for feature in self.features:
             model = self.known_features.get(feature)
 
+            # exclude deprecated features
             if feature in deprecated_features:
-                # exclude deprecated features
                 continue
-            elif model is None:
+
+            if model is None:
                 # not sure what the feature is, but add it anyway
                 features.append(feature)
 
