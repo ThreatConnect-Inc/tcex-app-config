@@ -773,10 +773,6 @@ class InstallJsonCommonModel(BaseModel):
             'advancedRequest': {
                 'runtime_levels': ['playbook'],
             },
-            'aotExecutionEnabled': {
-                'default': True,
-                'runtime_levels': ['playbook'],
-            },
             'appBuilderCompliant': {
                 'default': True,
                 'runtime_levels': ['playbook', 'triggerservice', 'webhooktriggerservice'],
@@ -848,6 +844,9 @@ class InstallJsonCommonModel(BaseModel):
         except Exception:
             tcex_version = Version('2.0.0')
 
+        # define deprecated features that should be removed
+        deprecated_features = ['aotExecutionEnabled']
+
         # normalize features based on App type and TcEx version
         features = []
         for feature, model in self.known_features.items():
@@ -869,7 +868,10 @@ class InstallJsonCommonModel(BaseModel):
         for feature in self.features:
             model = self.known_features.get(feature)
 
-            if model is None:
+            if feature in deprecated_features:
+                # exclude deprecated features
+                continue
+            elif model is None:
                 # not sure what the feature is, but add it anyway
                 features.append(feature)
 
