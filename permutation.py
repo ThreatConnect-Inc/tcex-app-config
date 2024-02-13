@@ -1,4 +1,5 @@
 """TcEx Framework Module"""
+
 # standard library
 import json
 import logging
@@ -205,8 +206,8 @@ class Permutation:
     def db_conn(self) -> sqlite3.Connection:  # type: ignore
         """Create a temporary in memory DB and return the connection."""
         try:
-            return sqlite3.connect(':memory:')
-        except sqlite3.Error as ex:  # pragma: no cover
+            return sqlite3.connect(':memory:')  # type: ignore
+        except sqlite3.Error as ex:  # type: ignore # pragma: no cover
             Render.panel.failure(f'Failed initializing database ({ex}).')
 
     def db_create_table(self, table_name: str, columns: list[str]):
@@ -222,7 +223,7 @@ class Permutation:
         try:
             cr = self.db_conn.cursor()
             cr.execute(sql)
-        except sqlite3.Error as e:  # pragma: no cover
+        except sqlite3.Error as e:  # type: ignore # pragma: no cover
             Render.panel.failure(f'SQL create db failed - SQL: "{sql}", Error: "{e}"')
 
     def db_drop_table(self, table_name: str):
@@ -235,7 +236,7 @@ class Permutation:
         try:
             cr = self.db_conn.cursor()
             cr.execute(sql)
-        except sqlite3.Error as e:  # pragma: no cover
+        except sqlite3.Error as e:  # type: ignore # pragma: no cover
             Render.panel.failure(f'SQL drop db failed - SQL: "{sql}", Error: "{e}"')
 
     def db_insert_record(self, table_name: str, columns: list[str]):
@@ -285,7 +286,7 @@ class Permutation:
             try:
                 cur = self.db_conn.cursor()
                 cur.execute(sql)
-            except sqlite3.OperationalError as ex:  # pragma: no cover
+            except sqlite3.OperationalError as ex:  # type: ignore # pragma: no cover
                 Render.panel.failure(f'SQL update failed - SQL: "{sql}", Error: "{ex}"')
 
     def get_action_input_names(self, action: str) -> list[str]:
@@ -566,7 +567,7 @@ class Permutation:
                 rows = cur.fetchall()
                 if rows[0][0] > 0:
                     display = True
-            except sqlite3.Error as e:  # pragma: no cover
+            except sqlite3.Error as e:  # type: ignore # pragma: no cover
                 Render.panel.failure(f'"{display_query}" query returned an error: ({e}).')
         return display
 
