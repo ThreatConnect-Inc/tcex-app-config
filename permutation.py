@@ -342,8 +342,7 @@ class Permutation:
                 if param is not None:
                     yield param
         else:
-            for param in self.ij.model.params:
-                yield param
+            yield from self.ij.model.params
 
     # TODO: [low] improve this logic
     def init_permutations(self):
