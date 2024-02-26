@@ -1,4 +1,5 @@
 """TcEx Framework Module"""
+
 # pylint: disable=no-self-argument
 # standard library
 import logging
@@ -793,6 +794,7 @@ class InstallJsonCommonModel(BaseModel):
             },
             'runtimeVariables': {
                 'default': True,
+                'runtime_levels': ['playbook'],
                 'version': Version('3.0.2'),
             },
             # 'secureParams': {
