@@ -503,7 +503,7 @@ def get_commit_hash() -> str | None:
 
 def gen_app_id() -> UUID5:
     """Return a generate id for the current App."""
-    return uuid.uuid5(uuid.NAMESPACE_X500, os.path.basename(os.getcwd()).lower())
+    return uuid.uuid4()
 
 
 class InstallJsonCommonModel(BaseModel):
