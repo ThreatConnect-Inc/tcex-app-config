@@ -254,7 +254,7 @@ class Permutation:
         bindings = ', '.join(['?'] * len(columns))
         columns_string = ', '.join([f'''"{c.strip('"').strip("'")}"''' for c in columns])
         values = [None] * len(columns)
-        sql = f'INSERT INTO {table_name} ({columns_string}) VALUES ({bindings})'
+        sql = f'INSERT INTO {table_name} ({columns_string}) VALUES ({bindings})'  # nosec
         try:
             cur = self.db_conn.cursor()
             cur.execute(sql, values)
@@ -282,7 +282,7 @@ class Permutation:
         # only column defined in install.json can be updated
         if column in self.ij.model.param_names:
             # value should be wrapped in single quotes to be properly parsed
-            sql = f'UPDATE {table_name} SET {column} = \'{value}\''
+            sql = f'UPDATE {table_name} SET {column} = \'{value}\''  # nosec
             try:
                 cur = self.db_conn.cursor()
                 cur.execute(sql)

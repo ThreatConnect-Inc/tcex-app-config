@@ -1,4 +1,5 @@
 """TcEx Framework Module"""
+
 # standard library
 from importlib.metadata import version
 from typing import TYPE_CHECKING
