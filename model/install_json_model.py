@@ -782,9 +782,10 @@ class InstallJsonCommonModel(BaseModel):
             'fileParams': {
                 'default': True,
             },
-            # 'layoutEnabledApp': {
-            #     'runtime_levels': ['playbook', 'triggerservice', 'webhooktriggerservice'],
-            # },
+            # 2025-01-22 - bcs uncommented to prevent warning
+            'layoutEnabledApp': {
+                'runtime_levels': ['playbook', 'triggerservice', 'webhooktriggerservice'],
+            },
             'linkApiPath': {
                 'runtime_levels': ['apiservice', 'feedapiservice'],
             },
