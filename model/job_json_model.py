@@ -1,6 +1,7 @@
 """TcEx Framework Module"""
 
-# pylint: disable=no-self-argument
+# standard library
+from typing import ClassVar
 
 # third-party
 from pydantic import BaseModel, Field, validator
@@ -89,6 +90,7 @@ class JobJsonModel(JobJsonCommonModel):
     program_version: str
 
     @validator('program_version')
+    @classmethod
     def version(cls, v):
         """Return a version object for "version" fields."""
         if v is not None:
@@ -100,5 +102,5 @@ class JobJsonModel(JobJsonCommonModel):
 
         alias_generator = snake_to_camel
         arbitrary_types_allowed = True
-        json_encoders = {Version: lambda v: str(v)}  # pylint: disable=unnecessary-lambda
+        json_encoders: ClassVar = {Version: lambda v: str(v)}
         validate_assignment = True

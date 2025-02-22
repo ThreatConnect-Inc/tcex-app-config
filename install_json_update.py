@@ -1,6 +1,7 @@
 """TcEx Framework Module"""
 
 # standard library
+import contextlib
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 class InstallJsonUpdate:
     """Config object for install.json file (update)"""
 
-    def __init__(self, ij: 'InstallJson'):  # pylint: disable=E0601
+    def __init__(self, ij: 'InstallJson'):
         """Initialize instance properties"""
         self.ij = ij
 
@@ -111,8 +112,6 @@ class InstallJsonUpdate:
 
     def update_sdk_version(self):
         """Update sdk version."""
-        try:
+        with contextlib.suppress(ImportError, ValueError):
             # best effort to get the version of the tcex package
             self.ij.model.sdk_version = Version(version('tcex'))
-        except (ImportError, ValueError):
-            pass

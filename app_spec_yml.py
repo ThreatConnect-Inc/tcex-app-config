@@ -3,7 +3,6 @@
 # standard library
 import json
 import logging
-import os
 from functools import cached_property
 from pathlib import Path
 
@@ -31,16 +30,16 @@ class AppSpecYml:
     def __init__(
         self,
         filename: str | None = None,
-        path: str | None = None,
+        path: str | Path | None = None,
         logger: logging.Logger | None = None,
     ):
         """Initialize instance properties."""
         filename = filename or 'app_spec.yml'
-        path = path or os.getcwd()
+        path = Path(path or Path.cwd())
         self.log = logger or _logger
 
         # properties
-        self.fqfn = Path(os.path.join(path, filename))
+        self.fqfn = path / filename
         self.ij = InstallJson(logger=self.log)
         self.tj = TcexJson(logger=self.log)
 
@@ -49,7 +48,7 @@ class AppSpecYml:
         """Return all inputs for advanced request."""
         return [
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'label': 'API Endpoint/Path',
                 'name': 'tc_adv_req_path',
                 'note': 'The API Path request.',
@@ -59,7 +58,7 @@ class AppSpecYml:
                 'validValues': ['${TEXT}'],
             },
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'default': 'GET',
                 'label': 'HTTP Method',
                 'name': 'tc_adv_req_http_method',
@@ -69,7 +68,7 @@ class AppSpecYml:
                 'validValues': ['GET', 'POST', 'DELETE', 'PUT', 'HEAD', 'PATCH', 'OPTIONS'],
             },
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'label': 'Query Parameters',
                 'name': 'tc_adv_req_params',
                 'note': (
@@ -83,18 +82,18 @@ class AppSpecYml:
                 'validValues': ['${KEYCHAIN}', '${TEXT}'],
             },
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'label': 'Exclude Empty/Null Parameters',
                 'name': 'tc_adv_req_exclude_null_params',
                 'note': (
-                    '''Some API endpoint don't handle null/empty query parameters properly '''
-                    '''(e.g., ?name=&type=String). If selected this options will exclude any '''
-                    '''query parameters that has a null/empty value.'''
+                    """Some API endpoint don't handle null/empty query parameters properly """
+                    """(e.g., ?name=&type=String). If selected this options will exclude any """
+                    """query parameters that has a null/empty value."""
                 ),
                 'type': 'Boolean',
             },
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'label': 'Headers',
                 'name': 'tc_adv_req_headers',
                 'note': (
@@ -110,8 +109,8 @@ class AppSpecYml:
             },
             {
                 'display': (
-                    '''tc_action in ('Advanced Request') AND tc_adv_req_http_method '''
-                    '''in ('POST', 'PUT', 'DELETE', 'PATCH')'''
+                    """tc_action in ('Advanced Request') AND tc_adv_req_http_method """
+                    """in ('POST', 'PUT', 'DELETE', 'PATCH')"""
                 ),
                 'label': 'Body',
                 'name': 'tc_adv_req_body',
@@ -124,20 +123,20 @@ class AppSpecYml:
             },
             {
                 'display': (
-                    '''tc_action in ('Advanced Request') AND tc_adv_req_http_method '''
-                    '''in ('POST', 'PUT', 'DELETE', 'PATCH')'''
+                    """tc_action in ('Advanced Request') AND tc_adv_req_http_method """
+                    """in ('POST', 'PUT', 'DELETE', 'PATCH')"""
                 ),
                 'label': 'URL Encode JSON Body',
                 'name': 'tc_adv_req_urlencode_body',
                 'note': (
-                    '''URL encode a JSON-formatted body. Typically used for'''
-                    ''' 'x-www-form-urlencoded' data, where the data can be configured in the '''
-                    '''body as a JSON string.'''
+                    """URL encode a JSON-formatted body. Typically used for"""
+                    """ 'x-www-form-urlencoded' data, where the data can be configured in the """
+                    """body as a JSON string."""
                 ),
                 'type': 'Boolean',
             },
             {
-                'display': '''tc_action in ('Advanced Request')''',
+                'display': """tc_action in ('Advanced Request')""",
                 'default': True,
                 'label': 'Fail for Status',
                 'name': 'tc_adv_req_fail_on_error',
@@ -150,7 +149,7 @@ class AppSpecYml:
     def _feature_data_advanced_request_outputs(prefix: str) -> dict:
         """Return all outputs for advanced request."""
         return {
-            'display': 'tc_action in (\'Advanced Request\')',
+            'display': "tc_action in ('Advanced Request')",
             'outputVariables': [
                 {
                     'name': f'{prefix}.request.content',
@@ -298,17 +297,19 @@ class AppSpecYml:
         outputs = []
         contents['outputData'] = contents.pop('outputGroups', {})
         for display, group in contents.get('outputData', {}).items():
+            group_ = group
             output_data = {'display': display, 'outputVariables': []}
 
             # fix schema when output type is assumed
             if isinstance(group, list):
-                group = {'String': group}
+                group_ = {'String': group_}
 
-            for variable_type, variables in group.items():
+            for variable_type, variables in group_.items():
                 for name in variables:
+                    name_ = name
                     disabled = False
-                    if name.startswith('~'):
-                        name = name.replace('~', '')
+                    if name_.startswith('~'):
+                        name_ = name_.replace('~', '')
                         disabled = True
 
                     output_data['outputVariables'].append(
@@ -316,7 +317,7 @@ class AppSpecYml:
                             'disabled': disabled,
                             'encrypt': False,
                             'intelTypes': [],
-                            'name': name,
+                            'name': name_,
                             'note': None,
                             'type': variable_type,
                         }
@@ -357,7 +358,7 @@ class AppSpecYml:
                     with self.fqfn.open(encoding='utf-8') as fh:
                         contents = yaml.load(fh, Loader=Loader)  # nosec
                 except (OSError, ValueError):  # pragma: no cover
-                    self.log.error(
+                    self.log.exception(
                         f'feature=app-spec-yml, exception=failed-reading-file, filename={self.fqfn}'
                     )
             else:  # pragma: no cover
@@ -408,7 +409,8 @@ class AppSpecYml:
             if 'Configure' not in [
                 section.get('sectionName') for section in _contents.get('sections', [])
             ]:
-                raise RuntimeError('The advancedRequest feature requires a Configure section.')
+                ex_msg = 'The advancedRequest feature requires a Configure section.'
+                raise RuntimeError(ex_msg)
 
             # Add "Advanced Request" action to Valid Values
             # when "advancedRequest" feature is enabled
@@ -446,11 +448,12 @@ class AppSpecYml:
             contents['programMain'] = 'run.py'
 
         # fix missing outputPrefix
-        if contents.get('outputPrefix') is None and 'advancedRequest' in contents.get(
-            'features', []
+        if (
+            contents.get('outputPrefix') is None
+            and 'advancedRequest' in contents.get('features', [])
+            and self.ij.model.playbook is not None
         ):
-            if self.ij.model.playbook is not None:
-                contents['outputPrefix'] = self.ij.model.playbook.output_prefix
+            contents['outputPrefix'] = self.ij.model.playbook.output_prefix
 
         # ensure displayPath is set for API Service Apps
         if contents.get('displayPath') is None and contents['runtimeLevel'].lower() in [

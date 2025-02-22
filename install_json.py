@@ -62,7 +62,7 @@ class InstallJson:
                 with self.fqfn.open() as fh:
                     return json.load(fh, object_pairs_hook=OrderedDict)
             except (OSError, ValueError):  # pragma: no cover
-                self.log.error(
+                self.log.exception(
                     f'feature=install-json, exception=failed-reading-file, filename={self.fqfn}'
                 )
 
@@ -210,7 +210,7 @@ class InstallJson:
                 args[n] = p.default
             elif p.type.lower() == 'choice':
                 # provide all options by default
-                valid_values = f"[{'|'.join(self.expand_valid_values(p.valid_values))}]"
+                valid_values = f'[{"|".join(self.expand_valid_values(p.valid_values))}]'
 
                 # use the value from input_permutations if available or provide valid values
                 if input_permutations is not None:

@@ -1,9 +1,9 @@
 """TcEx Framework Module"""
 
-# pylint: disable=no-self-argument
 # standard library
 import re
 from copy import deepcopy
+from typing import ClassVar
 
 # third-party
 from pydantic import BaseModel, Field, root_validator, validator
@@ -57,7 +57,7 @@ class OutputVariablesSpecModel(OutputVariablesModel):
     """Model definition for app_spec.outputs.output_variables."""
 
     disabled: bool = Field(
-        False,
+        default=False,
         description='If True, the output will not be included in ij/lj files.',
     )
     type: str = Field(
@@ -91,9 +91,10 @@ class OutputDataModel(BaseModel):
         validate_assignment = True
 
     @validator('display')
+    @classmethod
     def _display(cls, v: str):
         """Normalize "always True" expression for display clause."""
-        if v is not None and v.lower() == '''tc_action not in ('')''':
+        if v is not None and v.lower() == "tc_action not in ('')":
             v = '1'
         return v  # pragma: no cover
 
@@ -106,7 +107,7 @@ class ParamsSpecModel(ParamsModel):
         description='The display clause from the layout.json file.',
     )
     disabled: bool | None = Field(
-        False,
+        default=False,
         description='If True, the parameter will not be included in ij/lj files.',
     )
     type: TypeEnum = Field(
@@ -118,7 +119,7 @@ class ParamsSpecModel(ParamsModel):
         """DataModel Config"""
 
         alias_generator = snake_to_camel
-        fields = {'sequence': {'exclude': True}}
+        fields: ClassVar = {'sequence': {'exclude': True}}
         smart_union = True
         use_enum_values = True
         validate_assignment = True
@@ -228,6 +229,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
     )
 
     @root_validator
+    @classmethod
     def _validate_no_input_duplication(cls, values):
         """Validate that no two parameters have the same name."""
         duplicates = {}
@@ -240,10 +242,12 @@ class AppSpecYmlModel(InstallJsonCommonModel):
 
         if duplicates:
             formatted_duplicates = [f'{k}({len(v)})' for k, v in duplicates.items()]
-            raise ValueError(f'Found duplicate parameters: {", ".join(formatted_duplicates)}')
+            ex_msg = f'Found duplicate parameters: {", ".join(formatted_duplicates)}'
+            raise ValueError(ex_msg)
         return values
 
     @validator('schema_version')
+    @classmethod
     def _version(cls, v: str):
         """Return a version object for "version" fields."""
         if v is not None:
@@ -251,13 +255,15 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         return v  # pragma: no cover
 
     @validator('output_prefix', always=True, pre=True)
+    @classmethod
     def _output_prefix(cls, v: str | None, values: dict):
         """Validate output_prefix is set when required."""
         if 'advancedRequest' in values.get('features', []):
             if v is None:
-                raise ValueError(
+                ex_msg = (
                     'The outputPrefix field is required when feature advancedRequest is enabled.'
                 )
+                raise ValueError(ex_msg)
         else:
             # remove output_prefix if not required
             v = None
@@ -419,13 +425,11 @@ class AppSpecYmlModel(InstallJsonCommonModel):
           * Input type is "String"
           * No "playbookDataType" values are provided
         """
-        if self.runtime_level.lower() == 'playbook':
-            # by rule any input of type String must have String and playbookDataType
-            if (
-                param.type in ['EditChoice', 'KeyValueList', 'String']
-                and not param.playbook_data_type
-            ):
-                param.playbook_data_type = ['String']
+        # by rule any input of type String must have String and playbookDataType
+        if self.runtime_level.lower() == 'playbook' and (
+            param.type in ['EditChoice', 'KeyValueList', 'String'] and not param.playbook_data_type
+        ):
+            param.playbook_data_type = ['String']
 
     def _set_default_valid_values(self, param: ParamsSpecModel):
         """Set default playbookDataType for String type params.

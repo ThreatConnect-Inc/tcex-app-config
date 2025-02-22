@@ -1,9 +1,9 @@
 """TcEx Framework Module"""
 
 # standard library
+import contextlib
 import json
 import logging
-import os
 import random
 import re
 import sys
@@ -11,11 +11,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, cast
 
-try:
-    # standard library
+with contextlib.suppress(ImportError):
     import sqlite3
-except ImportError:  # pragma: no cover
-    pass  # sqlite3 is only required for local development
 
 from ...pleb.cached_property import cached_property
 from ...pleb.none_model import NoneModel
@@ -52,7 +49,7 @@ class Permutation:
         self._input_names = None
         self._input_permutations: list[list[InputModel]] = []
         self._output_permutations: list[list[OutputVariablesModel]] = []
-        self.fqfn = Path(os.getcwd(), 'permutations.json')
+        self.fqfn = Path.cwd() / 'permutations.json'
         self.ij = InstallJson()
         self.input_table = 'inputs'
         self.lj = LayoutJson()
@@ -75,9 +72,9 @@ class Permutation:
         _keywords = set()
         for param in self.lj.model.params.values():
             for keyword in (param.display or '').split(' '):
-                keyword = re.sub(r'[^a-zA-Z0-9_]', '', keyword)
-                if keyword in self.ij.model.param_names:
-                    _keywords.add(keyword)
+                keyword_ = re.sub(r'[^a-zA-Z0-9_]', '', keyword)
+                if keyword_ in self.ij.model.param_names:
+                    _keywords.add(keyword_)
         self.log.debug(f'keywords={_keywords}')
         return _keywords
 
@@ -173,7 +170,7 @@ class Permutation:
                 yield param
 
         # hidden fields will not be in layout.json so they need to be include manually
-        for input_name, ij_data in self.ij.model.filter_params(hidden=True).items():
+        for _, ij_data in self.ij.model.filter_params(hidden=True).items():
             yield ij_data
 
     @cached_property
@@ -196,8 +193,8 @@ class Permutation:
 
         for action, data in _action_configurations.items():
             _action_configurations[action] = {
-                'inputs': sorted(list(set(data['inputs'])), key=lambda x: x.name),
-                'outputs': sorted(list(set(data['outputs'])), key=lambda x: x.name),
+                'inputs': sorted(set(data['inputs']), key=lambda x: x.name),
+                'outputs': sorted(set(data['outputs']), key=lambda x: x.name),
             }
 
         return _action_configurations
@@ -271,7 +268,7 @@ class Permutation:
         """
         # escape any single quotes in value
         if isinstance(value, str):
-            value = value.replace('\'', '\\')
+            value = value.replace("'", '\\')
         elif isinstance(value, bool):
             # core expects true/false so we convert bool value to string and lower
             value = str(value).lower()
@@ -282,7 +279,7 @@ class Permutation:
         # only column defined in install.json can be updated
         if column in self.ij.model.param_names:
             # value should be wrapped in single quotes to be properly parsed
-            sql = f'UPDATE {table_name} SET {column} = \'{value}\''  # nosec
+            sql = f"UPDATE {table_name} SET {column} = '{value}'"  # nosec
             try:
                 cur = self.db_conn.cursor()
                 cur.execute(sql)
@@ -319,7 +316,7 @@ class Permutation:
         """Extract the tc_action part of the display clause."""
         if display_clause is not None:
             # action_clause_extract_pattern = r'(tc_action\sin\s\([^\)]*\))'
-            action_clause_extract_pattern = r'''(tc_action\sin\s\(.+?(?<='\)))'''
+            action_clause_extract_pattern = r"""(tc_action\sin\s\(.+?(?<='\)))"""
             _tc_action_clause = re.search(
                 action_clause_extract_pattern, display_clause, re.IGNORECASE
             )
@@ -456,7 +453,7 @@ class Permutation:
         Returns:
             list: List of Lists of valid outputs objects.
         """
-        table = f'temp_{random.randint(100,999)}'  # nosec
+        table = f'temp_{random.randint(100, 999)}'  # nosec
         self.db_create_table(table, self.ij.model.param_names)
         self.db_insert_record(table, self.ij.model.param_names)
 
@@ -519,7 +516,7 @@ class Permutation:
             # always return true, even if current App doesn't have layouts
             return True
 
-        table = f'temp_{random.randint(100,999)}'  # nosec
+        table = f'temp_{random.randint(100, 999)}'  # nosec
         self.db_create_table(table, self.ij.model.param_names)
         self.db_insert_record(table, self.ij.model.param_names)
 
@@ -534,7 +531,8 @@ class Permutation:
             lj_data = self.lj.model.get_param(input_name)
             if isinstance(lj_data, NoneModel):  # pragma: no cover
                 # this shouldn't happen as all ij inputs must be in lj
-                raise RuntimeError(f'The provided input {input_name} was not found in layout.json.')
+                ex_msg = f'The provided input {input_name} was not found in layout.json.'
+                raise RuntimeError(ex_msg)
             display = lj_data.display
 
         # check if provided variable meets display requirements
