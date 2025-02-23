@@ -4,7 +4,7 @@
 from pathlib import PosixPath
 
 # third-party
-from pydantic import BaseModel, validator
+from pydantic.v1 import BaseModel, validator
 
 __all__ = ['TcexJsonModel']
 

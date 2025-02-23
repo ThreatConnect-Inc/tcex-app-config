@@ -11,8 +11,8 @@ from enum import Enum
 from importlib.metadata import version as get_version
 
 # third-party
-from pydantic import BaseModel, Field, validator
-from pydantic.types import UUID4, UUID5, constr
+from pydantic.v1 import BaseModel, Field, validator
+from pydantic.v1.types import UUID4, UUID5, constr
 from semantic_version import Version
 
 __all__ = ['InstallJsonModel']

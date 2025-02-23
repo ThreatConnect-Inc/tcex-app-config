@@ -6,7 +6,7 @@ import re
 from copy import deepcopy
 
 # third-party
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic.v1 import BaseModel, Field, root_validator, validator
 from semantic_version import Version
 
 from .install_json_model import (
