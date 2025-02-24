@@ -41,7 +41,7 @@ class LayoutJson(metaclass=Singleton):
                 with self.fqfn.open() as fh:
                     contents = json.load(fh, object_pairs_hook=OrderedDict)
             except (OSError, ValueError):  # pragma: no cover
-                self.log.error(
+                self.log.exception(
                     f'feature=layout-json, exception=failed-reading-file, filename={self.fqfn}'
                 )
         else:  # pragma: no cover
@@ -59,15 +59,13 @@ class LayoutJson(metaclass=Singleton):
             }
 
         lj = LayoutJsonModel(
-            **{
-                'inputs': [
-                    input_data(1, 'Action'),
-                    input_data(2, 'Connection'),
-                    input_data(3, 'Configure'),
-                    input_data(4, 'Advanced'),
-                ],
-                'outputs': [{'display': '', 'name': o.name} for o in outputs],
-            }
+            inputs=[
+                input_data(1, 'Action'),
+                input_data(2, 'Connection'),
+                input_data(3, 'Configure'),
+                input_data(4, 'Advanced'),
+            ],  # type: ignore
+            outputs=[{'display': '', 'name': o.name} for o in outputs],  # type: ignore
         )
 
         for input_ in inputs:
@@ -136,5 +134,6 @@ class LayoutJsonUpdate:
         """Sort output field by name."""
         # APP-86 - sort output data by name
         self.lj.model.outputs = sorted(
-            self.lj.model.dict().get('outputs', []), key=lambda i: i['name']  # type: ignore
+            self.lj.model.dict().get('outputs', []),
+            key=lambda i: i['name'],  # type: ignore
         )

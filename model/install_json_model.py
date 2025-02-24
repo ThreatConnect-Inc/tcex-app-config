@@ -1,7 +1,7 @@
 """TcEx Framework Module"""
 
-# pylint: disable=no-self-argument
 # standard library
+import contextlib
 import logging
 import os
 import platform
@@ -9,6 +9,7 @@ import re
 import uuid
 from enum import Enum
 from importlib.metadata import version as get_version
+from pathlib import Path
 
 # third-party
 from pydantic import BaseModel, Field, validator
@@ -35,7 +36,7 @@ class _FeatureModel(BaseModel):
     """Model definition"""
 
     default: bool | None = Field(
-        False, description='Indicates whether the feature is a default for the App type.'
+        default=False, description='Indicates whether the feature is a default for the App type.'
     )
     runtime_levels: list[str] | None = Field(
         None,
@@ -69,11 +70,11 @@ class DeprecationModel(BaseModel):
         description='The amount the confidence should be reduced by.',
     )
     delete_at_minimum: bool = Field(
-        False,
+        default=False,
         description='If true, the indicator will be deleted at the minimum confidence.',
     )
     percentage: bool = Field(
-        False,
+        default=False,
         description='If true, use percentage instead of point value when reducing the confidence.',
     )
 
@@ -122,7 +123,7 @@ class FeedsModel(BaseModel):
         description='Optional property that sets the Document storage limit.',
     )
     enable_bulk_json: bool = Field(
-        False,
+        default=False,
         description='Optional property that enables or disables the bulk JSON capability.',
     )
     first_run_params: list[FirstRunParamsModel] = Field(
@@ -147,15 +148,15 @@ class FeedsModel(BaseModel):
     source_description: str = Field(
         ...,
         description=(
-            '''Optional property that provides the source's description as it will be '''
-            '''displayed in the ThreatConnect platform.'''
+            "Optional property that provides the source's description as it will be "
+            'displayed in the ThreatConnect platform.'
         ),
     )
     source_name: str = Field(
         ...,
         description=(
-            '''Optional property that provides the name of the source in which the feed's '''
-            '''content will be created.'''
+            "Optional property that provides the name of the source in which the feed's "
+            'content will be created.'
         ),
     )
 
@@ -195,7 +196,7 @@ class ParamsModel(BaseModel):
     """Model definition for install_json.params"""
 
     allow_multiple: bool = Field(
-        False,
+        default=False,
         description=(
             'The value of this optional property is automatically set to true if the '
             'MultiChoice type is used. If a String type is used, this flag allows the '
@@ -204,7 +205,7 @@ class ParamsModel(BaseModel):
         ),
     )
     allow_nested: bool = Field(
-        False,
+        default=False,
         description='',
     )
     default: bool | str | None = Field(
@@ -212,7 +213,7 @@ class ParamsModel(BaseModel):
         description='Optional property that is the default value for an App input parameter.',
     )
     encrypt: bool = Field(
-        False,
+        default=False,
         description=(
             'Optional property that designates a parameter as an encrypted value. '
             'Parameters defined as encrypted will be managed by the Keychain feature '
@@ -226,11 +227,11 @@ class ParamsModel(BaseModel):
         description='',
     )
     feed_deployer: bool = Field(
-        False,
+        default=False,
         description='',
     )
     hidden: bool = Field(
-        False,
+        default=False,
         description=(
             'If this optional property is set to true, this parameter will be hidden '
             'from the Job Wizard. Hidden parameters allow the developer to persist '
@@ -278,7 +279,7 @@ class ParamsModel(BaseModel):
         ),
     )
     required: bool = Field(
-        False,
+        default=False,
         description=(
             'Optional property designating this parameter as a required field that must '
             'be populated to save the Job or Playbook App.'
@@ -293,11 +294,11 @@ class ParamsModel(BaseModel):
         ),
     )
     service_config: bool = Field(
-        False,
+        default=False,
         description='',
     )
     setup: bool = Field(
-        False,
+        default=False,
         description='',
     )
     type: TypeEnum = Field(
@@ -327,6 +328,7 @@ class ParamsModel(BaseModel):
     )
 
     @validator('name')
+    @classmethod
     def _name(cls, v):
         """Return the transformed "name" field.
 
@@ -357,7 +359,7 @@ class OutputVariablesModel(BaseModel):
 
     # sensitive value
     encrypt: bool = Field(
-        False,
+        default=False,
         description='',
     )
     intel_type: list | None = Field(
@@ -395,9 +397,9 @@ class RetryModel(BaseModel):
         description='A list of tc_actions that support retry.',
     )
     allowed: bool = Field(
-        False,
+        default=False,
         description=(
-            'Optional property that specifies whether the Playbook App can retry its ' 'execution.'
+            'Optional property that specifies whether the Playbook App can retry its execution.'
         ),
     )
     default_delay_minutes: int = Field(
@@ -477,21 +479,18 @@ def get_commit_hash() -> str | None:
     """
     commit_hash = None
     branch = None
-    branch_file = '.git/HEAD'  # ref: refs/heads/develop
+    branch_file = Path('.git') / 'HEAD'  # ref: refs/heads/develop
 
     # get current branch
-    if os.path.isfile(branch_file):
-        with open(branch_file, encoding='utf-8') as f:
-            try:
-                branch = '/'.join(f.read().strip().split('/')[2:])
-            except IndexError:  # pragma: no cover
-                pass
+    if branch_file.is_file():
+        with branch_file.open(encoding='utf-8') as f, contextlib.suppress(IndexError):
+            branch = '/'.join(f.read().strip().split('/')[2:])
 
         # get commit hash
         if branch:
-            hash_file = f'.git/refs/heads/{branch}'
-            if os.path.isfile(hash_file):
-                with open(hash_file, encoding='utf-8') as f:
+            hash_file = Path('.git') / 'refs' / 'heads' / branch
+            if hash_file.is_file():
+                with hash_file.open(encoding='utf-8') as f:
                     commit_hash = f.read().strip()
 
     if commit_hash is None:
@@ -514,7 +513,7 @@ class InstallJsonCommonModel(BaseModel):
     """
 
     allow_on_demand: bool = Field(
-        False,
+        default=False,
         description=(
             'Required property that allows or disallows an App to be run on demand using '
             'the Run Now button when the App is configured as a Job in the ThreatConnect '
@@ -522,11 +521,11 @@ class InstallJsonCommonModel(BaseModel):
         ),
     )
     allow_run_as_user: bool = Field(
-        False,
+        default=False,
         description='Controls whether a Playbook App supports run-as-users.',
     )
     api_user_token_param: bool = Field(
-        True,
+        default=True,
         description=(
             '[Deprecated] Optional property that specifies whether or not the App should '
             'use an API user token (which allows access to the DataStore).'
@@ -551,8 +550,7 @@ class InstallJsonCommonModel(BaseModel):
     deprecates_apps: list[str] = Field(
         [],
         description=(
-            'Optional property that provides a list of Apps that should be '
-            'deprecated by this App.'
+            'Optional property that provides a list of Apps that should be deprecated by this App.'
         ),
     )
     display_name: constr(min_length=3, max_length=100) = Field(  # type: ignore
@@ -650,29 +648,21 @@ class InstallJsonCommonModel(BaseModel):
     )
 
     @validator('language_version', always=True, pre=True)
+    @classmethod
     def _language_version(cls, v) -> str:
         """Return a version object for "version" field."""
 
         def _major_minor(v):
             """Return the major.minor version."""
-            try:
+            with contextlib.suppress(Exception):
                 version_ = Version.coerce(v)
                 v = f'{version_.major}.{version_.minor}'
-            except Exception:  # nosec
-                # best effort
-                pass
-
             return v
 
-        if v is None:
-            v = _major_minor(platform.python_version())
-        else:
-            # for TC version >= 7.0.1 and < 7.2.0
-            v = _major_minor(v)
-
-        return v
+        return _major_minor(platform.python_version()) if v is None else _major_minor(v)
 
     @validator('min_server_version', pre=True)
+    @classmethod
     def _min_server_version(cls, v) -> Version:
         """Return a version object for "version" fields."""
         # all tcex 4 Apps must have min server version of at least 7.2.0
@@ -681,6 +671,7 @@ class InstallJsonCommonModel(BaseModel):
         return Version.coerce(v)
 
     @validator('program_version', pre=True)
+    @classmethod
     def _program_version(cls, v) -> Version:
         """Return a version object for "version" fields."""
         if v is not None:
@@ -688,6 +679,7 @@ class InstallJsonCommonModel(BaseModel):
         return v
 
     @validator('sdk_version', always=True, pre=True)
+    @classmethod
     def _sdk_version(cls, v) -> Version:
         """Return a version object for "version" field."""
         if v is None:
@@ -864,7 +856,7 @@ class InstallJsonCommonModel(BaseModel):
                 features.append(feature)
 
         # add layoutEnabledApp if layout.json file exists in project
-        if os.path.isfile('layout.json'):
+        if Path('layout.json').is_file():
             features.append('layoutEnabledApp')
 
         # extend feature list with features defined by developer
@@ -881,13 +873,11 @@ class InstallJsonCommonModel(BaseModel):
 
                 # log unknown features
                 _logger.warning(f'Unknown feature found in install.json: {feature}')
-            else:
-                # "drop" features that should not be in the list
-                if (model.version is None or model.version <= tcex_version) and (
-                    model.runtime_levels is None
-                    or self.runtime_level.lower() in model.runtime_levels
-                ):
-                    features.append(feature)
+            # "drop" features that should not be in the list
+            elif (model.version is None or model.version <= tcex_version) and (
+                model.runtime_levels is None or self.runtime_level.lower() in model.runtime_levels
+            ):
+                features.append(feature)
 
         return sorted(set(features))
 
@@ -1013,29 +1003,23 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
         """
         params = {}
         for p in self.params:
-            if name is not None:
-                if p.name != name:
-                    continue
+            if name is not None and p.name != name:
+                continue
 
-            if hidden is not None:
-                if p.hidden is not hidden:
-                    continue
+            if hidden is not None and p.hidden is not hidden:
+                continue
 
-            if required is not None:
-                if p.required is not required:
-                    continue
+            if required is not None and p.required is not required:
+                continue
 
-            if service_config is not None:
-                if p.service_config is not service_config:
-                    continue
+            if service_config is not None and p.service_config is not service_config:
+                continue
 
-            if _type is not None:
-                if p.type != _type:
-                    continue
+            if _type is not None and p.type != _type:
+                continue
 
-            if input_permutations is not None:
-                if p.name not in input_permutations:
-                    continue
+            if input_permutations is not None and p.name not in input_permutations:
+                continue
 
             params.setdefault(p.name, p)
         return params

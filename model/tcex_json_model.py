@@ -2,6 +2,7 @@
 
 # standard library
 from pathlib import PosixPath
+from typing import ClassVar
 
 # third-party
 from pydantic import BaseModel, validator
@@ -9,7 +10,6 @@ from pydantic import BaseModel, validator
 __all__ = ['TcexJsonModel']
 
 
-# pylint: disable=no-self-argument
 class PackageModel(BaseModel):
     """Model definition for tcex_json.package"""
 
@@ -19,11 +19,12 @@ class PackageModel(BaseModel):
     output_dir: str = 'target'
 
     @validator('excludes')
-    def sorted(cls, v):
+    @classmethod
+    def sorted(cls, v) -> list:
         """Change value for excludes field."""
         # the requirements.txt file is required for App Builder
         v = [e for e in v if e != 'requirements.txt']
-        return list(sorted(set(v)))
+        return sorted(set(v))
 
     class Config:
         """DataModel Config"""
@@ -42,6 +43,6 @@ class TcexJsonModel(BaseModel):
     class Config:
         """DataModel Config"""
 
-        json_encoders = {PosixPath: lambda v: v.original_value}
+        json_encoders: ClassVar = {PosixPath: lambda v: v.original_value}
         use_enum_values = True
         validate_assignment = True

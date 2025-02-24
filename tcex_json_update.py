@@ -1,7 +1,7 @@
 """TcEx Framework Module"""
 
 # standard library
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -46,9 +46,7 @@ class TcexJsonUpdate:
             or self.tj.model.package.app_name in self.tj.ij.app_prefixes.values()
         ):
             # lower case name and replace prefix if already exists
-            _app_name = (
-                os.path.basename(os.getcwd()).lower().replace(self.tj.ij.app_prefix.lower(), '')
-            )
+            _app_name = Path.cwd().name.lower().replace(self.tj.ij.app_prefix.lower(), '')
 
             # replace spaces and dashes with underscores
             _app_name = _app_name.replace(' ', '_').replace('-', '_').lower()

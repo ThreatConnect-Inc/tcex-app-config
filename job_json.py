@@ -41,7 +41,7 @@ class JobJson(metaclass=Singleton):
                 with self.fqfn.open() as fh:
                     _contents = json.load(fh, object_pairs_hook=OrderedDict)
             except OSError:  # pragma: no cover
-                self.log.error(
+                self.log.exception(
                     f'feature=tcex-json, exception=failed-reading-file, filename={self.fqfn}'
                 )
         else:  # pragma: no cover
