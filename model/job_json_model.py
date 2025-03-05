@@ -4,7 +4,7 @@
 from typing import ClassVar
 
 # third-party
-from pydantic import BaseModel, Field, validator
+from pydantic.v1 import BaseModel, Field, validator
 from semantic_version import Version
 
 __all__ = ['JobJsonModel']
