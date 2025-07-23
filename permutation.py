@@ -183,7 +183,7 @@ class Permutation:
             for input_ in inputs:
                 if input_.name == 'tc_action':
                     # the value should always be a string
-                    action = cast(str, input_.value)
+                    action = cast('str', input_.value)
                     _action_configurations.setdefault(action, {'inputs': [], 'outputs': []})
                     _action_configurations[action]['inputs'].extend(inputs)
                     _action_configurations[action]['outputs'].extend(
