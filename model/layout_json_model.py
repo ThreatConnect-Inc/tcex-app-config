@@ -4,8 +4,8 @@
 from collections import OrderedDict
 
 # third-party
-from pydantic import BaseModel, Field
-from pydantic.types import constr
+from pydantic.v1 import BaseModel, Field
+from pydantic.v1.types import constr
 
 from ....pleb.none_model import NoneModel
 
