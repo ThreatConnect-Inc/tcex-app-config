@@ -3,6 +3,7 @@
 # standard library
 import json
 import logging
+import os
 from collections import OrderedDict
 from functools import cached_property
 from pathlib import Path
@@ -34,7 +35,12 @@ class InstallJson:
         path = Path(path or Path.cwd())
         self.log = logger or _logger
 
-        # properties
+        # support testing using pytest
+        # test_path = os.getenv('TCEX_TESTING_INSTALL_JSON', None)
+        # if test_path:
+        #     self.fqfn = Path(test_path)
+        # else:
+        #     self.fqfn = path / filename
         self.fqfn = path / filename
 
     @property
@@ -260,8 +266,8 @@ class InstallJson:
 
     def write(self):
         """Write current data file."""
-        data = self.model.json(
-            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2, sort_keys=True
+        data = self.model.model_dump_json(
+            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2
         )
         with self.fqfn.open(mode='w') as fh:
             fh.write(f'{data}\n')

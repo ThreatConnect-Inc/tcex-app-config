@@ -29,7 +29,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 class InputModel(ParamsModel):
     """Input Model"""
 
-    value: Any
+    value: Any = None
 
     def __hash__(self):
         """Make model hashable."""

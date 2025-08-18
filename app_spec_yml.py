@@ -470,12 +470,11 @@ class AppSpecYml:
         # exclude_none - this should be safe to leave as True.
         # exclude_unset - this should be False to ensure that all fields are included.
         contents = json.loads(
-            AppSpecYmlModel(**contents).json(
+            AppSpecYmlModel(**contents).model_dump_json(
                 by_alias=True,
                 exclude_defaults=True,
                 exclude_none=True,
                 exclude_unset=False,
-                sort_keys=True,
             )
         )
 

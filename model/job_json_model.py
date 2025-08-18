@@ -1,40 +1,32 @@
 """TcEx Framework Module"""
 
 # standard library
-from typing import ClassVar
 
 # third-party
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic.alias_generators import to_camel
 from semantic_version import Version
 
 __all__ = ['JobJsonModel']
 
 
-def snake_to_camel(snake_string: str) -> str:
-    """Convert snake_case to camelCase"""
-    components = snake_string.split('_')
-    return components[0] + ''.join(x.title() for x in components[1:])
-
-
 class ParamsModel(BaseModel):
     """Model definition for job.json.params"""
 
-    default: bool | str | None
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
+    default: bool | str | None = None
     encrypt: bool = False
     name: str
     prevent_updates: bool = False
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        # without smart_union the default value as a string of "0" would be converted to a bool
-        smart_union = True
-        validate_assignment = True
-
 
 class JobJsonCommonModel(BaseModel):
     """Model definition for common field in job.json."""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel, arbitrary_types_allowed=True, validate_assignment=True
+    )
 
     allow_on_demand: bool = Field(
         ...,
@@ -75,32 +67,21 @@ class JobJsonCommonModel(BaseModel):
     schedule_start_date: int
     schedule_type: str
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        arbitrary_types_allowed = True
-        validate_assignment = True
-
 
 class JobJsonModel(JobJsonCommonModel):
     """Model definition for job.json configuration file"""
 
+    model_config = ConfigDict(
+        alias_generator=to_camel, arbitrary_types_allowed=True, validate_assignment=True
+    )
+
     program_name: str
     program_version: str
 
-    @validator('program_version')
+    @field_validator('program_version')
     @classmethod
     def version(cls, v):
         """Return a version object for "version" fields."""
         if v is not None:
             return Version(v)
         return v  # pragma: no cover
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        arbitrary_types_allowed = True
-        json_encoders: ClassVar = {Version: lambda v: str(v)}
-        validate_assignment = True
