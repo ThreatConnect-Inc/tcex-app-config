@@ -1,8 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
-
-# third-party
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.alias_generators import to_camel
 from semantic_version import Version

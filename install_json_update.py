@@ -1,11 +1,9 @@
 """TcEx Framework Module"""
 
-# standard library
 import contextlib
 from importlib.metadata import version
 from typing import TYPE_CHECKING
 
-# third-party
 from semantic_version import Version
 
 if TYPE_CHECKING:

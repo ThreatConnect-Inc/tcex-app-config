@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import json
 import logging
 from collections import OrderedDict

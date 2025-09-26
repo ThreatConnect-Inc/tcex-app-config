@@ -1,10 +1,8 @@
 """TcEx Framework Module"""
 
-# standard library
 import re
 from copy import deepcopy
 
-# third-party
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.alias_generators import to_camel
 from pydantic_core.core_schema import ValidationInfo

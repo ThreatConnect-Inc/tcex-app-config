@@ -1,16 +1,13 @@
 """TcEx Framework Module"""
 
-# standard library
 import json
 import logging
 from functools import cached_property
 from pathlib import Path
 
-# third-party
 import yaml
 
 try:
-    # third-party
     from yaml import CDumper as Dumper
     from yaml import CLoader as Loader
 except ImportError:

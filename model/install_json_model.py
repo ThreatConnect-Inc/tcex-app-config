@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import contextlib
 import logging
 import os
@@ -12,7 +11,6 @@ from importlib.metadata import version as get_version
 from pathlib import Path
 from typing import Annotated
 
-# third-party
 from pydantic import (
     BaseModel,
     ConfigDict,

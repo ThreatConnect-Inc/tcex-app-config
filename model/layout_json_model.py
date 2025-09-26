@@ -1,10 +1,8 @@
 """TcEx Framework Module"""
 
-# standard library
 from collections import OrderedDict
 from typing import Annotated
 
-# third-party
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from pydantic.alias_generators import to_camel
 

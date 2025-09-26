@@ -1,8 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
-
-# third-party
 from pydantic import BaseModel, ConfigDict, field_validator
 
 __all__ = ['TcexJsonModel']
