@@ -2,8 +2,16 @@
 
 import re
 from copy import deepcopy
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
 from pydantic_core.core_schema import ValidationInfo
 from semantic_version import Version
@@ -186,8 +194,8 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         ...,
         description='The release notes for the App.',
     )
-    schema_version: str = Field(
-        '1.0.0',
+    schema_version: Version = Field(
+        ...,
         description='The version of the App Spec schema.',
     )
     sections: list[SectionsModel] = Field(
@@ -198,12 +206,16 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         None, description='Optional service details for Service Apps.'
     )
 
+    @field_serializer('schema_version')
+    def _schema_version_serializer(self, version: Version):
+        return str(version)
+
     @model_validator(mode='after')
     @classmethod
-    def _validate_no_input_duplication(cls, values):
+    def _validate_no_input_duplication(cls, values: Any):
         """Validate that no two parameters have the same name."""
         duplicates = {}
-        for section in values.get('sections', []):
+        for section in values.sections or []:
             for param in section.params:
                 duplicates.setdefault(param.name, []).append(param.label)
 
@@ -216,13 +228,13 @@ class AppSpecYmlModel(InstallJsonCommonModel):
             raise ValueError(ex_msg)
         return values
 
-    @field_validator('schema_version')
+    @field_validator('schema_version', mode='before')
     @classmethod
-    def _version(cls, v: str | None):
+    def _schema_version_validator(cls, v: str | None):
         """Return a version object for "version" fields."""
         if v is not None:
             return Version(v)
-        return v  # pragma: no cover
+        return Version('1.1.0')  # pragma: no cover
 
     @field_validator('output_prefix', mode='before')
     @classmethod

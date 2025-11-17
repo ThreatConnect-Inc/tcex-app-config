@@ -46,7 +46,7 @@ class _FeatureModel(BaseModel):
         description='The version of TcEx that the feature was added.',
     )
 
-    @field_serializer('version', when_used='json')
+    @field_serializer('version')
     def _version(self, version: Version):
         return str(version)
 
@@ -622,11 +622,11 @@ class InstallJsonCommonModel(BaseModel):
         validate_default=True,
     )
 
-    @field_serializer('app_id', when_used='json')
+    @field_serializer('app_id')
     def _uuid(self, uuid: UUID4 | UUID5):
         return str(uuid)
 
-    @field_serializer('min_server_version', 'program_version', 'sdk_version', when_used='json')
+    @field_serializer('min_server_version', 'program_version', 'sdk_version')
     def _version(self, version: Version):
         return str(version)
 
