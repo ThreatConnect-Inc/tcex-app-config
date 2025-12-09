@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -37,7 +36,7 @@ class TcexJsonUpdate:
     def update_deprecated_fields(self):
         """Update the lib_versions array in the tcex.json file."""
         if hasattr(self.tj.model, 'lib_versions'):
-            self.tj.model.lib_versions = None
+            self.tj.model.lib_versions = None  # type: ignore
 
     def update_package_app_name(self):
         """Update the package app_name in the tcex.json file."""

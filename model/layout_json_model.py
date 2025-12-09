@@ -1,74 +1,51 @@
 """TcEx Framework Module"""
 
-# standard library
 from collections import OrderedDict
+from typing import Annotated
 
-# third-party
-from pydantic import BaseModel, Field
-from pydantic.types import constr
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic.alias_generators import to_camel
 
 from ....pleb.none_model import NoneModel
 
 __all__ = ['LayoutJsonModel']
 
 
-def snake_to_camel(snake_string: str) -> str:
-    """Convert snake_case to camelCase"""
-    components = snake_string.split('_')
-    return components[0] + ''.join(x.title() for x in components[1:])
-
-
 class ParametersModel(BaseModel):
     """Model definition for layout_json.inputs.{}"""
 
-    display: str | None
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
+    display: str | None = None
     name: str
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
 
 class InputsModel(BaseModel):
     """Model definition for layout_json.inputs"""
 
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
     parameters: list[ParametersModel]
     sequence: int
-    title: constr(min_length=3, max_length=100)  # type: ignore
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
+    title: Annotated[str, StringConstraints(min_length=3, max_length=100)]  # type: ignore
 
 
 class OutputsModel(BaseModel):
     """Model definition for layout_json.outputs"""
 
-    display: str | None
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
+    display: str | None = None
     name: str
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
 
 class LayoutJsonModel(BaseModel):
     """Model definition for layout.json configuration file"""
 
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
     inputs: list[InputsModel]
     outputs: list[OutputsModel] = Field([], description='Layout output variable definitions.')
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
     def get_param(self, name: str) -> NoneModel | ParametersModel:
         """Return the param or a None Model."""
@@ -101,4 +78,4 @@ class LayoutJsonModel(BaseModel):
         return parameters
 
 
-OutputsModel.update_forward_refs()
+# OutputsModel.update_forward_refs()

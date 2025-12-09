@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import json
 import logging
 from collections import OrderedDict
@@ -83,9 +82,7 @@ class LayoutJson(metaclass=Singleton):
                 lj.inputs[2].parameters.append({'display': '', 'name': input_.name})  # type: ignore
 
         # write layout file to disk
-        data = lj.json(
-            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2, sort_keys=True
-        )
+        data = lj.model_dump_json(by_alias=True, exclude_defaults=True, exclude_none=True, indent=2)
         self.write(data)
 
     @property
@@ -125,8 +122,8 @@ class LayoutJsonUpdate:
         # APP-86 - sort output data by name
         self.update_sort_outputs()
 
-        data = self.lj.model.json(
-            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2, sort_keys=True
+        data = self.lj.model.model_dump_json(
+            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2
         )
         self.lj.write(data)
 
@@ -134,6 +131,6 @@ class LayoutJsonUpdate:
         """Sort output field by name."""
         # APP-86 - sort output data by name
         self.lj.model.outputs = sorted(
-            self.lj.model.dict().get('outputs', []),
+            self.lj.model.model_dump().get('outputs', []),
             key=lambda i: i['name'],  # type: ignore
         )

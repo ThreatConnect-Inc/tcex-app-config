@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import json
 import logging
 from collections import OrderedDict
@@ -34,7 +33,6 @@ class InstallJson:
         path = Path(path or Path.cwd())
         self.log = logger or _logger
 
-        # properties
         self.fqfn = path / filename
 
     @property
@@ -260,8 +258,8 @@ class InstallJson:
 
     def write(self):
         """Write current data file."""
-        data = self.model.json(
-            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2, sort_keys=True
+        data = self.model.model_dump_json(
+            by_alias=True, exclude_defaults=True, exclude_none=True, indent=2
         )
         with self.fqfn.open(mode='w') as fh:
             fh.write(f'{data}\n')

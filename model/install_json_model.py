@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import contextlib
 import logging
 import os
@@ -10,10 +9,18 @@ import uuid
 from enum import Enum
 from importlib.metadata import version as get_version
 from pathlib import Path
+from typing import Annotated
 
-# third-party
-from pydantic import BaseModel, Field, validator
-from pydantic.types import UUID4, UUID5, constr
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_serializer,
+    field_validator,
+)
+from pydantic.alias_generators import to_camel
+from pydantic.types import UUID4, UUID5
 from semantic_version import Version
 
 __all__ = ['InstallJsonModel']
@@ -22,18 +29,10 @@ __all__ = ['InstallJsonModel']
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 
 
-def snake_to_camel(snake_string: str) -> str:
-    """Convert snake_case to camelCase"""
-    components = snake_string.split('_')
-    return components[0] + ''.join(x.title() for x in components[1:])
-
-
-# define JSON encoders
-json_encoders = {Version: str, UUID4: str, UUID5: str}
-
-
 class _FeatureModel(BaseModel):
     """Model definition"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     default: bool | None = Field(
         default=False, description='Indicates whether the feature is a default for the App type.'
@@ -47,15 +46,15 @@ class _FeatureModel(BaseModel):
         description='The version of TcEx that the feature was added.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        arbitrary_types_allowed = True
-        json_encoders = json_encoders
+    @field_serializer('version')
+    def _version(self, version: Version):
+        return str(version)
 
 
 class DeprecationModel(BaseModel):
     """Model definition for install_json.deprecation"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     indicator_type: str | None = Field(
         None,
@@ -78,15 +77,11 @@ class DeprecationModel(BaseModel):
         description='If true, use percentage instead of point value when reducing the confidence.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class FirstRunParamsModel(BaseModel):
     """Model definition for install_json.deprecation"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     param: str | None = Field(
         None,
@@ -97,15 +92,11 @@ class FirstRunParamsModel(BaseModel):
         description='The value to set the parameter to.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class FeedsModel(BaseModel):
     """Model definition for install_json.feeds"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     attributes_file: str | None = Field(
         None,
@@ -160,12 +151,6 @@ class FeedsModel(BaseModel):
         ),
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class ExposePlaybookKeyAsEnum(str, Enum):
     """Enum for install_json.params[].exposePlaybookAs"""
@@ -194,6 +179,12 @@ class TypeEnum(str, Enum):
 
 class ParamsModel(BaseModel):
     """Model definition for install_json.params"""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        use_enum_values=True,
+        validate_assignment=False,
+    )
 
     allow_multiple: bool = Field(
         default=False,
@@ -327,7 +318,7 @@ class ParamsModel(BaseModel):
         ),
     )
 
-    @validator('name')
+    @field_validator('name')
     @classmethod
     def _name(cls, v):
         """Return the transformed "name" field.
@@ -341,14 +332,6 @@ class ParamsModel(BaseModel):
             v = re.sub(r'[^a-zA-Z0-9_]', '', v)
         return v
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        smart_union = True
-        use_enum_values = True
-        validate_assignment = False
-
     def __hash__(self):
         """Make model hashable."""
         return hash(self.name)
@@ -356,6 +339,8 @@ class ParamsModel(BaseModel):
 
 class OutputVariablesModel(BaseModel):
     """Model definition for install_json.playbook.outputVariables"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     # sensitive value
     encrypt: bool = Field(
@@ -378,12 +363,6 @@ class OutputVariablesModel(BaseModel):
         ..., description='Required property that specifies the type of the output variable.'
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
     def __hash__(self):
         """Make model hashable."""
         return hash(f'{self.name}{self.type}')
@@ -391,6 +370,8 @@ class OutputVariablesModel(BaseModel):
 
 class RetryModel(BaseModel):
     """Model definition for install_json.playbook.retry"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     actions: list[str] = Field(
         [],
@@ -419,15 +400,11 @@ class RetryModel(BaseModel):
         ),
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class PlaybookModel(BaseModel):
     """Model definition for install_json.playbook"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     output_prefix: str | None = Field(None, description='')
     output_variables: list[OutputVariablesModel] = Field(
@@ -449,26 +426,16 @@ class PlaybookModel(BaseModel):
         description='The App category (e.g., Endpoint Detection and Response).',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class ServiceModel(BaseModel):
     """Model definition for install_json.service"""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     discovery_types: list[str] = Field(
         [],
         description='Service App discovery types (e.g., TaxiiApi).',
     )
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
 
 def get_commit_hash() -> str | None:
@@ -512,6 +479,12 @@ class InstallJsonCommonModel(BaseModel):
     the app_spec.yaml file.
     """
 
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        arbitrary_types_allowed=True,
+        validate_assignment=True,
+    )
+
     allow_on_demand: bool = Field(
         default=False,
         description=(
@@ -553,14 +526,14 @@ class InstallJsonCommonModel(BaseModel):
             'Optional property that provides a list of Apps that should be deprecated by this App.'
         ),
     )
-    display_name: constr(min_length=3, max_length=100) = Field(  # type: ignore
+    display_name: Annotated[str, StringConstraints(min_length=3, max_length=100)] = Field(  # type: ignore
         ...,
         description=(
             'Required property providing the name of the App as it will be displayed in '
             'the ThreatConnect platform.'
         ),
     )
-    display_path: constr(min_length=3, max_length=100) | None = Field(  # type: ignore
+    display_path: Annotated[str, StringConstraints(min_length=3, max_length=100)] | None = Field(  # type: ignore
         None,
         description='The display path for API service Apps.',
     )
@@ -581,6 +554,7 @@ class InstallJsonCommonModel(BaseModel):
             'The major.minor version of the language (e.g., Python "3.11"). This value is used by '
             'the Core platform to control which version of Python is used to launch the App.'
         ),
+        validate_default=True,
     )
     list_delimiter: str = Field(
         ...,
@@ -590,7 +564,7 @@ class InstallJsonCommonModel(BaseModel):
         ),
     )
     min_server_version: Version = Field(
-        '7.2.0',
+        Version('7.2.0'),
         description=(
             'Optional string property restricting the ThreatConnect instance from '
             'installing the App if it does not meet this version requirement (e.g., 7.2.0).'
@@ -645,9 +619,18 @@ class InstallJsonCommonModel(BaseModel):
             'The version of the SDK (TcEx). This value is used by the Core '
             'platform to control behavior in App Builder.'
         ),
+        validate_default=True,
     )
 
-    @validator('language_version', always=True, pre=True)
+    @field_serializer('app_id')
+    def _uuid(self, uuid: UUID4 | UUID5):
+        return str(uuid)
+
+    @field_serializer('min_server_version', 'program_version', 'sdk_version')
+    def _version(self, version: Version):
+        return str(version)
+
+    @field_validator('language_version', mode='before')
     @classmethod
     def _language_version(cls, v) -> str:
         """Return a version object for "version" field."""
@@ -661,7 +644,7 @@ class InstallJsonCommonModel(BaseModel):
 
         return _major_minor(platform.python_version()) if v is None else _major_minor(v)
 
-    @validator('min_server_version', pre=True)
+    @field_validator('min_server_version', mode='before')
     @classmethod
     def _min_server_version(cls, v) -> Version:
         """Return a version object for "version" fields."""
@@ -670,7 +653,7 @@ class InstallJsonCommonModel(BaseModel):
             v = '7.2.0'
         return Version.coerce(v)
 
-    @validator('program_version', pre=True)
+    @field_validator('program_version', mode='before')
     @classmethod
     def _program_version(cls, v) -> Version:
         """Return a version object for "version" fields."""
@@ -678,7 +661,7 @@ class InstallJsonCommonModel(BaseModel):
             return Version(v)
         return v
 
-    @validator('sdk_version', always=True, pre=True)
+    @field_validator('sdk_version', mode='before')
     @classmethod
     def _sdk_version(cls, v) -> Version:
         """Return a version object for "version" field."""
@@ -698,14 +681,6 @@ class InstallJsonCommonModel(BaseModel):
                 return v
 
         return v
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        arbitrary_types_allowed = True
-        json_encoders = json_encoders
-        validate_assignment = True
 
     @property
     def is_api_service_app(self) -> bool:
@@ -889,6 +864,8 @@ class InstallJsonOrganizationModel(BaseModel):
     the app_spec.yaml file.
     """
 
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
     feeds: list[FeedsModel] = Field(
         [],
         description='A list of features enabled for the App.',
@@ -915,15 +892,15 @@ class InstallJsonOrganizationModel(BaseModel):
         ),
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
     """Model definition for install.json configuration file"""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        arbitrary_types_allowed=True,
+        validate_assignment=True,
+    )
 
     commit_hash: str | None = Field(
         default_factory=get_commit_hash,
@@ -963,14 +940,6 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
             'is only applicable to Spaces Apps.'
         ),
     )
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        arbitrary_types_allowed = True
-        json_encoders = json_encoders
-        validate_assignment = True
 
     @property
     def app_output_var_type(self) -> str:

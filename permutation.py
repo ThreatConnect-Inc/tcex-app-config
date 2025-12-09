@@ -1,6 +1,5 @@
 """TcEx Framework Module"""
 
-# standard library
 import contextlib
 import json
 import logging
@@ -29,7 +28,7 @@ _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
 class InputModel(ParamsModel):
     """Input Model"""
 
-    value: Any
+    value: Any = None
 
     def __hash__(self):
         """Make model hashable."""
@@ -58,7 +57,7 @@ class Permutation:
     @staticmethod
     def _create_input_model(ij_param: ParamsModel, value: Any) -> InputModel:
         """Create an input model from the install.json param model."""
-        _input_model = InputModel(**ij_param.dict())
+        _input_model = InputModel(**ij_param.model_dump())
         # manually adding List values due to bug where data is not getting loaded into model in init
         _input_model.intel_type = ij_param.intel_type
         _input_model.playbook_data_type = ij_param.playbook_data_type

@@ -1,12 +1,19 @@
 """TcEx Framework Module"""
 
-# standard library
 import re
 from copy import deepcopy
-from typing import ClassVar
+from typing import Any
 
-# third-party
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
+from pydantic.alias_generators import to_camel
+from pydantic_core.core_schema import ValidationInfo
 from semantic_version import Version
 
 from .install_json_model import (
@@ -17,7 +24,6 @@ from .install_json_model import (
     ParamsModel,
     RetryModel,
     TypeEnum,
-    snake_to_camel,
 )
 from .job_json_model import JobJsonCommonModel
 
@@ -31,30 +37,24 @@ class FeedsSpecModel(FeedsModel):
 class NotesPerActionModel(BaseModel):
     """Model definition for app_spec.notes_per_action."""
 
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
     action: str = Field(..., description='The action name.')
     note: str = Field(..., description='The note describing the action.')
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
 
 class OrganizationModel(InstallJsonOrganizationModel):
     """Model definition for app_spec.organization."""
 
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
+
     feeds: list[FeedsSpecModel] = Field([], description='')
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
 
 class OutputVariablesSpecModel(OutputVariablesModel):
     """Model definition for app_spec.outputs.output_variables."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     disabled: bool = Field(
         default=False,
@@ -65,15 +65,11 @@ class OutputVariablesSpecModel(OutputVariablesModel):
         description='The output variable type (e.g., String, TCEntity, etc).',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class OutputDataModel(BaseModel):
     """Model definition for app_spec.output_data."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     display: str | None = Field(
         None,
@@ -84,13 +80,7 @@ class OutputDataModel(BaseModel):
         description='An array of output variables.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
-    @validator('display')
+    @field_validator('display')
     @classmethod
     def _display(cls, v: str):
         """Normalize "always True" expression for display clause."""
@@ -101,6 +91,12 @@ class OutputDataModel(BaseModel):
 
 class ParamsSpecModel(ParamsModel):
     """Model definition for app_spec.params."""
+
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        use_enum_values=True,
+        validate_assignment=True,
+    )
 
     display: str | None = Field(
         None,
@@ -115,33 +111,22 @@ class ParamsSpecModel(ParamsModel):
         description='',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        fields: ClassVar = {'sequence': {'exclude': True}}
-        smart_union = True
-        use_enum_values = True
-        validate_assignment = True
-
 
 class PlaybookSpecModel(BaseModel):
     """Model definition for app_spec.playbook."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     retry: RetryModel | None = Field(
         None,
         description='',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class ReleaseNoteModel(BaseModel):
     """Model definition for app_spec.releaseNotes."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     notes: list[str] = Field(
         ...,
@@ -152,15 +137,11 @@ class ReleaseNoteModel(BaseModel):
         description='The version of the release.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class SectionsModel(BaseModel):
     """Model definition for app_spec.sections."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     section_name: str = Field(
         ...,
@@ -171,15 +152,11 @@ class SectionsModel(BaseModel):
         description='A list of input parameter data.',
     )
 
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
-
 
 class AppSpecYmlModel(InstallJsonCommonModel):
     """Model definition for the app_spec.yml file."""
+
+    model_config = ConfigDict(alias_generator=to_camel, validate_assignment=True)
 
     note_per_action: list[NotesPerActionModel] | None = Field(
         None,
@@ -199,8 +176,9 @@ class AppSpecYmlModel(InstallJsonCommonModel):
             'The prefix for output variables, used for advanced request outputs. This value '
             'should match what is passed to the advanced request method in the playbook App.'
         ),
+        validate_default=True,
     )
-    package_name: str = Field(
+    package_name: str | None = Field(
         None,
         description='The package name (app_name in tcex.json) for the App.',
     )
@@ -216,8 +194,8 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         ...,
         description='The release notes for the App.',
     )
-    schema_version: str = Field(
-        '1.0.0',
+    schema_version: Version = Field(
+        Version('1.1.0'),
         description='The version of the App Spec schema.',
     )
     sections: list[SectionsModel] = Field(
@@ -228,12 +206,16 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         None, description='Optional service details for Service Apps.'
     )
 
-    @root_validator
+    @field_serializer('schema_version')
+    def _schema_version_serializer(self, version: Version):
+        return str(version)
+
+    @model_validator(mode='after')
     @classmethod
-    def _validate_no_input_duplication(cls, values):
+    def _validate_no_input_duplication(cls, values: Any):
         """Validate that no two parameters have the same name."""
         duplicates = {}
-        for section in values.get('sections', []):
+        for section in values.sections or []:
             for param in section.params:
                 duplicates.setdefault(param.name, []).append(param.label)
 
@@ -246,19 +228,19 @@ class AppSpecYmlModel(InstallJsonCommonModel):
             raise ValueError(ex_msg)
         return values
 
-    @validator('schema_version')
+    @field_validator('schema_version', mode='before')
     @classmethod
-    def _version(cls, v: str):
-        """Return a version object for "version" fields."""
-        if v is not None:
-            return Version(v)
-        return v  # pragma: no cover
+    def _schema_version_validator(cls, v):
+        """Ensure schema_version is a Version object."""
+        if isinstance(v, Version) or v is None:
+            return v
+        return Version(v)
 
-    @validator('output_prefix', always=True, pre=True)
+    @field_validator('output_prefix', mode='before')
     @classmethod
-    def _output_prefix(cls, v: str | None, values: dict):
+    def _output_prefix(cls, v: str | None, info: ValidationInfo):
         """Validate output_prefix is set when required."""
-        if 'advancedRequest' in values.get('features', []):
+        if 'advancedRequest' in info.data.get('features', []):
             if v is None:
                 ex_msg = (
                     'The outputPrefix field is required when feature advancedRequest is enabled.'
@@ -268,12 +250,6 @@ class AppSpecYmlModel(InstallJsonCommonModel):
             # remove output_prefix if not required
             v = None
         return v
-
-    class Config:
-        """DataModel Config"""
-
-        alias_generator = snake_to_camel
-        validate_assignment = True
 
     @property
     def inputs(self) -> list:
