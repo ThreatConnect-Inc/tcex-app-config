@@ -230,7 +230,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
 
     @field_validator('schema_version', mode='before')
     @classmethod
-    def _schema_version_validator(cls, v):
+    def _schema_version(cls, v):
         """Ensure schema_version is a Version object."""
         if isinstance(v, Version) or v is None:
             return v
@@ -240,7 +240,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
     @classmethod
     def _output_prefix(cls, v: str | None, info: ValidationInfo):
         """Validate output_prefix is set when required."""
-        if 'advancedRequest' in info.data.get('features', []):
+        if 'advancedRequest' in (info.config or {}).get('features', []):
             if v is None:
                 ex_msg = (
                     'The outputPrefix field is required when feature advancedRequest is enabled.'
