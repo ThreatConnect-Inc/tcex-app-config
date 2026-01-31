@@ -195,7 +195,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         description='The release notes for the App.',
     )
     schema_version: Version = Field(
-        Version('1.1.0'),
+        ...,
         description='The version of the App Spec schema.',
     )
     sections: list[SectionsModel] = Field(
@@ -230,17 +230,19 @@ class AppSpecYmlModel(InstallJsonCommonModel):
 
     @field_validator('schema_version', mode='before')
     @classmethod
-    def _schema_version_validator(cls, v):
+    def _schema_version(cls, v):
         """Ensure schema_version is a Version object."""
-        if isinstance(v, Version) or v is None:
+        if isinstance(v, Version):
             return v
+        if v is None:
+            return Version('1.0.0')
         return Version(v)
 
     @field_validator('output_prefix', mode='before')
     @classmethod
     def _output_prefix(cls, v: str | None, info: ValidationInfo):
         """Validate output_prefix is set when required."""
-        if 'advancedRequest' in info.data.get('features', []):
+        if 'advancedRequest' in (info.data or {}).get('features', []):
             if v is None:
                 ex_msg = (
                     'The outputPrefix field is required when feature advancedRequest is enabled.'

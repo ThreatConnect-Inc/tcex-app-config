@@ -17,7 +17,7 @@ class InstallJsonValidate:
         """Check for duplicate input names."""
         duplicates = []
         tracker = []
-        for param in self.ij.model.params:
+        for param in self.ij.model.params or []:
             if param.name in tracker:
                 duplicates.append(param.name)
             tracker.append(param.name)
@@ -41,7 +41,7 @@ class InstallJsonValidate:
         """Check for duplicate sequence numbers."""
         duplicates = []
         tracker = []
-        for param in self.ij.model.params:
+        for param in self.ij.model.params or []:
             if param.sequence in tracker:
                 duplicates.append(param.sequence)
             tracker.append(param.sequence)

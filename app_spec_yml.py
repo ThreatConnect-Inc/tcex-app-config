@@ -433,6 +433,10 @@ class AppSpecYml:
         if 'appId' in contents and contents.get('appId') is None:
             del contents['appId']
 
+        # ensure list fields always have at least an empty array
+        contents.setdefault('deprecatesApps', [])
+        contents.setdefault('labels', [])
+
         # update features
         contents['features'] = AppSpecYmlModel(**contents).updated_features
 

@@ -61,12 +61,12 @@ class InstallJsonUpdate:
 
     def update_sequence_numbers(self):
         """Update program sequence numbers."""
-        for sequence, param in enumerate(self.ij.model.params, start=1):
+        for sequence, param in enumerate(self.ij.model.params or [], start=1):
             param.sequence = sequence
 
     def update_valid_values(self):
         """Update program main on App type."""
-        for param in self.ij.model.params:
+        for param in self.ij.model.params or []:
             if param.type not in ['String', 'KeyValueList']:
                 continue
 
@@ -102,7 +102,7 @@ class InstallJsonUpdate:
         if not self.ij.model.is_playbook_app:
             return
 
-        for param in self.ij.model.params:
+        for param in self.ij.model.params or []:
             if param.type != 'String':
                 continue
             if not param.playbook_data_type:

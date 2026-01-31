@@ -172,7 +172,7 @@ class InstallJson:
         Used in tcex_testing for dynamic generation of output variables.
         """
         params = {}
-        for p in self.model.params:
+        for p in self.model.params or []:
             params.setdefault(p.name, p)
         return params
 

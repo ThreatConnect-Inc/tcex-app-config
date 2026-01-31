@@ -520,8 +520,8 @@ class InstallJsonCommonModel(BaseModel):
         '',
         description='The category of the App. Also playbook.type for playbook Apps.',
     )
-    deprecates_apps: list[str] = Field(
-        [],
+    deprecates_apps: list[str] | None = Field(
+        None,
         description=(
             'Optional property that provides a list of Apps that should be deprecated by this App.'
         ),
@@ -544,8 +544,8 @@ class InstallJsonCommonModel(BaseModel):
             'additional functionality in the Core Platform and/or for the App.'
         ),
     )
-    labels: list[str] = Field(
-        [],
+    labels: list[str] | None = Field(
+        None,
         description='A list of labels for the App.',
     )
     language_version: str = Field(
@@ -675,8 +675,9 @@ class InstallJsonCommonModel(BaseModel):
         # update version
         if v >= Version('4.0.0'):
             try:
-                # best effort to update the tcex version
-                return Version.coerce(get_version('tcex'))
+                # best effort to update the tcex version (major.minor.patch only)
+                _v = Version.coerce(get_version('tcex'))
+                return Version(f'{_v.major}.{_v.minor}.{_v.patch}')
             except Exception:
                 return v
 
@@ -910,8 +911,8 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
         None,
         description='[unsupported] The docker image to run the App.',
     )
-    params: list[ParamsModel] = Field(
-        [],
+    params: list[ParamsModel] | None = Field(
+        None,
         description='',
     )
     playbook: PlaybookModel | None = Field(
@@ -971,7 +972,7 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
             dict: All valid inputs for current filter.
         """
         params = {}
-        for p in self.params:
+        for p in self.params or []:
             if name is not None and p.name != name:
                 continue
 
@@ -1004,7 +1005,7 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
     @property
     def optional_params(self) -> dict[str, ParamsModel]:
         """Return params as name/data model."""
-        return {p.name: p for p in self.params if p.required is False}
+        return {p.name: p for p in self.params or [] if p.required is False}
 
     @property
     def package_version(self):
@@ -1014,12 +1015,12 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
     @property
     def param_names(self) -> list[str]:
         """Return the "name" field from all params."""
-        return [p.name for p in self.params]
+        return [p.name for p in self.params or []]
 
     @property
     def params_dict(self) -> dict[str, ParamsModel]:
         """Return params as name/data dict."""
-        return {p.name: p for p in self.params}
+        return {p.name: p for p in self.params or []}
 
     @property
     def playbook_outputs(self) -> dict[str, OutputVariablesModel]:
@@ -1029,14 +1030,14 @@ class InstallJsonModel(InstallJsonCommonModel, InstallJsonOrganizationModel):
     @property
     def required_params(self) -> dict[str, ParamsModel]:
         """Return params as name/data dict."""
-        return {p.name: p for p in self.params if p.required is True}
+        return {p.name: p for p in self.params or [] if p.required is True}
 
     @property
     def service_config_params(self) -> dict[str, ParamsModel]:
         """Return params as name/data dict."""
-        return {p.name: p for p in self.params if p.service_config is True}
+        return {p.name: p for p in self.params or [] if p.service_config is True}
 
     @property
     def service_playbook_params(self) -> dict[str, ParamsModel]:
         """Return params as name/data dict."""
-        return {p.name: p for p in self.params if p.service_config is False}
+        return {p.name: p for p in self.params or [] if p.service_config is False}
