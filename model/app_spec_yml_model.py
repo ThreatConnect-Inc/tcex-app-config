@@ -242,7 +242,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
     @classmethod
     def _output_prefix(cls, v: str | None, info: ValidationInfo):
         """Validate output_prefix is set when required."""
-        if 'advancedRequest' in (info.config or {}).get('features', []):
+        if 'advancedRequest' in (info.data or {}).get('features', []):
             if v is None:
                 ex_msg = (
                     'The outputPrefix field is required when feature advancedRequest is enabled.'
