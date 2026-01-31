@@ -457,11 +457,11 @@ class AppSpecYml:
             contents['outputPrefix'] = self.ij.model.playbook.output_prefix
 
         # ensure displayPath is set for API Service Apps
-        if contents.get('displayPath') is None and contents['runtimeLevel'].casefold() in [
+        if contents.get('displayPath') is None and contents['runtimeLevel'].lower() in [
             'apiservice',
             'feedapiservice',
         ]:
-            contents['displayPath'] = contents['displayName'].replace(' ', '-').casefold()
+            contents['displayPath'] = contents['displayName'].replace(' ', '-').lower()
 
     def rewrite_contents(self, contents: dict):
         """Rewrite app_spec.yml file."""
