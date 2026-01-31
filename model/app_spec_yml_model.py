@@ -195,7 +195,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         description='The release notes for the App.',
     )
     schema_version: Version = Field(
-        Version('1.1.0'),
+        ...,
         description='The version of the App Spec schema.',
     )
     sections: list[SectionsModel] = Field(
@@ -232,8 +232,10 @@ class AppSpecYmlModel(InstallJsonCommonModel):
     @classmethod
     def _schema_version(cls, v):
         """Ensure schema_version is a Version object."""
-        if isinstance(v, Version) or v is None:
+        if isinstance(v, Version):
             return v
+        if v is None:
+            return Version('1.0.0')
         return Version(v)
 
     @field_validator('output_prefix', mode='before')

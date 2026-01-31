@@ -675,8 +675,9 @@ class InstallJsonCommonModel(BaseModel):
         # update version
         if v >= Version('4.0.0'):
             try:
-                # best effort to update the tcex version
-                return Version.coerce(get_version('tcex'))
+                # best effort to update the tcex version (major.minor.patch only)
+                _v = Version.coerce(get_version('tcex'))
+                return Version(f'{_v.major}.{_v.minor}.{_v.patch}')
             except Exception:
                 return v
 
