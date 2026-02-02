@@ -254,7 +254,11 @@ class AppSpecYmlModel(InstallJsonCommonModel):
             return v
         if v is None:
             return Version('1.0.0')
-        return Version(v)
+        try:
+            return Version(v)
+        except ValueError as ex:
+            ex_msg = f'Invalid schema_version "{v}". Expected semver (e.g., "1.0.0").'
+            raise ValueError(ex_msg) from ex
 
     @validator('output_prefix', always=True, pre=True)
     @classmethod
