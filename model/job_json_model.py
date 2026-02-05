@@ -102,5 +102,5 @@ class JobJsonModel(JobJsonCommonModel):
 
         alias_generator = snake_to_camel
         arbitrary_types_allowed = True
-        json_encoders: ClassVar = {Version: lambda v: str(v)}
+        json_encoders: ClassVar = {Version: str}
         validate_assignment = True
