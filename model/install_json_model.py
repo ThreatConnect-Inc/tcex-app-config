@@ -6,7 +6,7 @@ import os
 import platform
 import re
 import uuid
-from enum import Enum
+from enum import Enum, StrEnum
 from importlib.metadata import version as get_version
 from pathlib import Path
 from typing import Annotated
@@ -152,7 +152,7 @@ class FeedsModel(BaseModel):
     )
 
 
-class ExposePlaybookKeyAsEnum(str, Enum):
+class ExposePlaybookKeyAsEnum(StrEnum, Enum):
     """Enum for install_json.params[].exposePlaybookAs"""
 
     Binary = 'Binary'
@@ -165,7 +165,7 @@ class ExposePlaybookKeyAsEnum(str, Enum):
     TCEntityArray = 'TCEntityArray'
 
 
-class TypeEnum(str, Enum):
+class TypeEnum(StrEnum, Enum):
     """Enum for install_json.params[].type"""
 
     Boolean = 'Boolean'
