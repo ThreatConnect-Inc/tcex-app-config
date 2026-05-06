@@ -1,6 +1,6 @@
 """TcEx Framework Module"""
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 from pydantic.alias_generators import to_camel
 from semantic_version import Version
 
@@ -73,12 +73,16 @@ class JobJsonModel(JobJsonCommonModel):
     )
 
     program_name: str
-    program_version: str
+    program_version: Version
 
-    @field_validator('program_version')
+    @field_validator('program_version', mode='before')
     @classmethod
     def version(cls, v):
         """Return a version object for "version" fields."""
         if v is not None:
-            return Version(v)
+            return Version(v) if not isinstance(v, Version) else v
         return v  # pragma: no cover
+
+    @field_serializer('program_version')
+    def _program_version(self, version: Version):
+        return str(version)
