@@ -65,3 +65,19 @@ class TcexJson:
         data = self.model.model_dump_json(exclude_defaults=True, exclude_none=True, indent=2)
         with self.fqfn.open(mode='w') as fh:
             fh.write(f'{data}\n')
+
+    def write_schema(self, path: Path | str | None = None) -> Path:
+        """Write JSON schema for the tcex.json model to a file.
+
+        Args:
+            path: Output file path. Defaults to tcex_json.schema.json
+                in the same directory as tcex.json.
+
+        Returns:
+            Path: The path of the written schema file.
+        """
+        schema = TcexJsonModel.model_json_schema()
+        output_path = Path(path) if path else self.fqfn.parent / 'tcex_json.schema.json'
+        with output_path.open(mode='w') as fh:
+            fh.write(f'{json.dumps(schema, indent=2)}\n')
+        return output_path

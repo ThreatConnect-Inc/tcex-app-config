@@ -27,7 +27,7 @@ class InputsModel(BaseModel):
 
     parameters: list[ParametersModel]
     sequence: int
-    title: Annotated[str, StringConstraints(min_length=3, max_length=100)]  # type: ignore
+    title: Annotated[str, StringConstraints(min_length=3, max_length=100)]
 
 
 class OutputsModel(BaseModel):

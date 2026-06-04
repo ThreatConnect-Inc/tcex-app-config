@@ -299,9 +299,9 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         return _note_per_action
 
     @property
-    def outputs(self) -> list[OutputVariablesModel]:
+    def outputs(self) -> list[dict[str, str | None]]:
         """Return lj.outputs."""
-        _outputs = []
+        _outputs: list[dict[str, str | None]] = []
         for output_data in self.output_data or []:
             for output_variable in output_data.output_variables:
                 if output_variable.disabled is True:
