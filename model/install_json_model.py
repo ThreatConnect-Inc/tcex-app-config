@@ -10,6 +10,7 @@ import uuid
 from enum import StrEnum
 from importlib.metadata import version as get_version
 from pathlib import Path
+from typing import Any
 
 # third-party
 from pydantic import BaseModel, Field, validator
@@ -672,7 +673,7 @@ class InstallJsonCommonModel(BaseModel):
 
     @validator('program_version', pre=True)
     @classmethod
-    def _program_version(cls, v) -> Version:
+    def _program_version(cls, v) -> Version | None:
         """Return a version object for "version" fields."""
         if v is not None:
             return Version(v)
@@ -762,7 +763,7 @@ class InstallJsonCommonModel(BaseModel):
     def known_features(self) -> dict[str, _FeatureModel]:
         """Return all known features."""
 
-        feature_data = {
+        feature_data: dict[str, dict[str, Any]] = {
             'advancedRequest': {
                 'runtime_levels': ['playbook'],
             },
