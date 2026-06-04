@@ -9,7 +9,7 @@ import uuid
 from enum import Enum, StrEnum
 from importlib.metadata import version as get_version
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 from pydantic import (
     BaseModel,
@@ -526,14 +526,14 @@ class InstallJsonCommonModel(BaseModel):
             'Optional property that provides a list of Apps that should be deprecated by this App.'
         ),
     )
-    display_name: Annotated[str, StringConstraints(min_length=3, max_length=100)] = Field(  # type: ignore
+    display_name: Annotated[str, StringConstraints(min_length=3, max_length=100)] = Field(
         ...,
         description=(
             'Required property providing the name of the App as it will be displayed in '
             'the ThreatConnect platform.'
         ),
     )
-    display_path: Annotated[str, StringConstraints(min_length=3, max_length=100)] | None = Field(  # type: ignore
+    display_path: Annotated[str, StringConstraints(min_length=3, max_length=100)] | None = Field(
         None,
         description='The display path for API service Apps.',
     )
@@ -738,7 +738,7 @@ class InstallJsonCommonModel(BaseModel):
     def known_features(self) -> dict[str, _FeatureModel]:
         """Return all known features."""
 
-        feature_data = {
+        feature_data: dict[str, dict[str, Any]] = {
             'advancedRequest': {
                 'runtime_levels': ['playbook'],
             },

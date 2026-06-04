@@ -148,5 +148,5 @@ class LayoutJsonUpdate:
         # APP-86 - sort output data by name
         self.lj.model.outputs = sorted(
             self.lj.model.model_dump().get('outputs', []),
-            key=lambda i: i['name'],  # type: ignore
+            key=lambda i: i['name'],
         )

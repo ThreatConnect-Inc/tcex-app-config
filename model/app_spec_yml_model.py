@@ -26,6 +26,7 @@ from .install_json_model import (
     TypeEnum,
 )
 from .job_json_model import JobJsonCommonModel
+from .layout_json_model import OutputsModel
 
 
 class FeedsSpecModel(FeedsModel):
@@ -299,7 +300,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         return _note_per_action
 
     @property
-    def outputs(self) -> list[OutputVariablesModel]:
+    def outputs(self) -> list[OutputsModel]:
         """Return lj.outputs."""
         _outputs = []
         for output_data in self.output_data or []:
@@ -308,10 +309,10 @@ class AppSpecYmlModel(InstallJsonCommonModel):
                     continue
 
                 _outputs.append(
-                    {
-                        'display': output_data.display,
-                        'name': output_variable.name,
-                    }
+                    OutputsModel(
+                        display=output_data.display,
+                        name=output_variable.name,
+                    )
                 )
         return _outputs
 

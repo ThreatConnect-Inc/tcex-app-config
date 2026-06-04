@@ -20,7 +20,7 @@ profile = "black"
 # pinning ty here keeps the type-checker version consistent across submodules).
 [dependency-groups]
 dev = [
-  "ty~=0.0.42",
+  "ty~=0.0.43",
 ]
 
 # Configuration for ty type checker
@@ -34,15 +34,8 @@ exclude = [
   "**/.history",
   "**/__pycache__",
   "**/local-*",
-  "tcex/api/tc/v2",
   "tests",
 ]
-
-[tool.ty.rules]
-# Override checks intentionally disabled (carried over from the prior type-checker config:
-# incompatible method/attribute overrides).
-invalid-attribute-override = "ignore"
-invalid-method-override = "ignore"
 
 [tool.pytest.ini_options]
 filterwarnings = []
