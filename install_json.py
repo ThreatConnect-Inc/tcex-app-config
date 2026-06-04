@@ -2,14 +2,28 @@
 
 import json
 import logging
+import warnings
 from collections import OrderedDict
 from functools import cached_property
 from pathlib import Path
 from typing import Any
 
+from pydantic.json_schema import GenerateJsonSchema
+from semantic_version import Version
+
 from .install_json_update import InstallJsonUpdate
 from .install_json_validate import InstallJsonValidate
 from .model.install_json_model import InstallJsonModel, ParamsModel
+
+
+class _InstallJsonSchemaGenerator(GenerateJsonSchema):
+    """Custom JSON schema generator that renders semantic_version.Version fields as strings."""
+
+    def is_instance_schema(self, schema):
+        if schema.get('cls') is not None and issubclass(schema['cls'], Version):
+            return {'type': 'string', 'description': 'Semantic version string (e.g., "1.0.0")'}
+        return super().is_instance_schema(schema)
+
 
 # get logger
 _logger = logging.getLogger(__name__.split('.', maxsplit=1)[0])
@@ -263,3 +277,23 @@ class InstallJson:
         )
         with self.fqfn.open(mode='w') as fh:
             fh.write(f'{data}\n')
+
+    def write_schema(self, path: Path | str | None = None) -> Path:
+        """Write JSON schema for the install.json model to a file.
+
+        Args:
+            path: Output file path. Defaults to install_json.schema.json
+                in the same directory as install.json.
+
+        Returns:
+            Path: The path of the written schema file.
+        """
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            schema = InstallJsonModel.model_json_schema(
+                by_alias=True, schema_generator=_InstallJsonSchemaGenerator
+            )
+        output_path = Path(path) if path else self.fqfn.parent / 'install_json.schema.json'
+        with output_path.open(mode='w') as fh:
+            fh.write(f'{json.dumps(schema, indent=2)}\n')
+        return output_path

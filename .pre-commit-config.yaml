@@ -59,9 +59,11 @@ repos:
           - pyi
   - repo: local
     hooks:
-      - id: pyright
-        entry: pyright
+      - id: ty
+        entry: ty check
         language: system
-        name: pyright
-        types:
+        name: ty
+        pass_filenames: false
+        types_or:
           - python
+          - directory

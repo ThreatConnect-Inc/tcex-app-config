@@ -109,6 +109,22 @@ class LayoutJson(metaclass=Singleton):
         with self.fqfn.open(mode='w') as fh:
             fh.write(f'{data}\n')
 
+    def write_schema(self, path: Path | str | None = None) -> Path:
+        """Write JSON schema for the layout.json model to a file.
+
+        Args:
+            path: Output file path. Defaults to layout_json.schema.json
+                in the same directory as layout.json.
+
+        Returns:
+            Path: The path of the written schema file.
+        """
+        schema = LayoutJsonModel.model_json_schema(by_alias=True)
+        output_path = Path(path) if path else self.fqfn.parent / 'layout_json.schema.json'
+        with output_path.open(mode='w') as fh:
+            fh.write(f'{json.dumps(schema, indent=2)}\n')
+        return output_path
+
 
 class LayoutJsonUpdate:
     """Update layout.json file with current standards and schema."""

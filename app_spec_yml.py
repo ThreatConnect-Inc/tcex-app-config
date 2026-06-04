@@ -2,6 +2,7 @@
 
 import json
 import logging
+import warnings
 from functools import cached_property
 from pathlib import Path
 
@@ -13,7 +14,7 @@ try:
 except ImportError:
     from yaml import Dumper, Loader
 
-from .install_json import InstallJson
+from .install_json import InstallJson, _InstallJsonSchemaGenerator
 from .model.app_spec_yml_model import AppSpecYmlModel
 from .tcex_json import TcexJson
 
@@ -488,3 +489,23 @@ class AppSpecYml:
         """Write yaml to file."""
         with self.fqfn.open(mode='w', encoding='utf-8') as fh:
             fh.write(self.dict_to_yaml(contents))
+
+    def write_schema(self, path: Path | str | None = None) -> Path:
+        """Write JSON schema for the app_spec.yml model to a file.
+
+        Args:
+            path: Output file path. Defaults to app_spec_yml.schema.json
+                in the same directory as app_spec.yml.
+
+        Returns:
+            Path: The path of the written schema file.
+        """
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            schema = AppSpecYmlModel.model_json_schema(
+                by_alias=True, schema_generator=_InstallJsonSchemaGenerator
+            )
+        output_path = Path(path) if path else self.fqfn.parent / 'app_spec_yml.schema.json'
+        with output_path.open(mode='w') as fh:
+            fh.write(f'{json.dumps(schema, indent=2)}\n')
+        return output_path
