@@ -26,7 +26,6 @@ from .install_json_model import (
     TypeEnum,
 )
 from .job_json_model import JobJsonCommonModel
-from .layout_json_model import OutputsModel
 
 
 class FeedsSpecModel(FeedsModel):
@@ -300,19 +299,19 @@ class AppSpecYmlModel(InstallJsonCommonModel):
         return _note_per_action
 
     @property
-    def outputs(self) -> list[OutputsModel]:
+    def outputs(self) -> list[dict[str, str | None]]:
         """Return lj.outputs."""
-        _outputs = []
+        _outputs: list[dict[str, str | None]] = []
         for output_data in self.output_data or []:
             for output_variable in output_data.output_variables:
                 if output_variable.disabled is True:
                     continue
 
                 _outputs.append(
-                    OutputsModel(
-                        display=output_data.display,
-                        name=output_variable.name,
-                    )
+                    {
+                        'display': output_data.display,
+                        'name': output_variable.name,
+                    }
                 )
         return _outputs
 
