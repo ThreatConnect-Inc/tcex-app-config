@@ -39,10 +39,10 @@ exclude = [
 ]
 
 [tool.ty.rules]
-# Override checks intentionally disabled (carried over from the prior pyright
-# config: reportIncompatibleMethodOverride / reportIncompatibleVariableOverride).
-invalid-attribute-override = "ignore" # was reportIncompatibleVariableOverride
-invalid-method-override = "ignore"    # was reportIncompatibleMethodOverride
+# Override checks intentionally disabled (carried over from the prior type-checker config:
+# incompatible method/attribute overrides).
+invalid-attribute-override = "ignore"
+invalid-method-override = "ignore"
 
 [tool.pytest.ini_options]
 filterwarnings = []
