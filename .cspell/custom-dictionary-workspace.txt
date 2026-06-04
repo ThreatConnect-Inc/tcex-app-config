@@ -7,7 +7,6 @@ feedapiservice
 keyvaluelist
 maxsplit
 multichoice
-pyright
 Taxii
 TCVA
 TCVC

@@ -54,12 +54,14 @@ repos:
           - --py311-plus
   - repo: local
     hooks:
-      - id: pyright
-        entry: pyright
+      - id: ty
+        entry: ty check
         language: system
-        name: pyright
-        types:
+        name: ty
+        pass_filenames: false
+        types_or:
           - python
+          - directory
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.7
     hooks:
