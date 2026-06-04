@@ -3,7 +3,7 @@
 # standard library
 import re
 from copy import deepcopy
-from typing import ClassVar
+from typing import Any, ClassVar
 
 # third-party
 from pydantic import BaseModel, Field, root_validator, validator
@@ -329,7 +329,7 @@ class AppSpecYmlModel(InstallJsonCommonModel):
     @property
     def outputs(self) -> list[OutputVariablesModel]:
         """Return lj.outputs."""
-        _outputs = []
+        _outputs: list[Any] = []
         for output_data in self.output_data or []:
             for output_variable in output_data.output_variables:
                 if output_variable.disabled is True:
