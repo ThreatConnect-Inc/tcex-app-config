@@ -554,7 +554,7 @@ class InstallJsonCommonModel(BaseModel):
             'Optional property that provides a list of Apps that should be deprecated by this App.'
         ),
     )
-    display_name: constr(min_length=3, max_length=100) = Field(  # type: ignore
+    display_name: constr(min_length=3, max_length=255) = Field(  # type: ignore
         ...,
         description=(
             'Required property providing the name of the App as it will be displayed in '
